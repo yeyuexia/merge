@@ -6,6 +6,6 @@ public class Merge {
     }
 
     public static <X, Y> boolean merge(X from, Y to, boolean ignoreNullValue) {
-        return new Merger().ignoreNullValue(true).merge(from, to);
+        return new Merger(from.getClass(), to.getClass(), ignoreNullValue).merge(from, to);
     }
 }

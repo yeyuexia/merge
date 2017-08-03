@@ -1,9 +1,6 @@
 package com.yyx.merge;
 
 import com.yyx.merge.exception.MergeException;
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.slf4j.Logger;
@@ -27,13 +24,15 @@ public class Merger {
     public <X, Y> boolean merge(X from, Y to, boolean ignoreNullValue) {
         Arrays.stream(to.getClass().getDeclaredFields())
                 .map(Field::getName)
-                .filter(field -> propertyUtils.isWriteable(to, field))
-                .filter(field -> propertyUtils.isReadable(to, field))
-                .filter(field -> propertyUtils.isWriteable(from, field))
-                .filter(field -> propertyUtils.isReadable(from, field))
+                .filter(field -> isWriteAble(from, to, field))
                 .filter(field -> isNullValue(from, field))
                 .forEach(field -> copy(from, to, field));
         return true;
+    }
+
+    private <X, Y> boolean isWriteAble(X from, Y to, String field) {
+        return propertyUtils.isWriteable(to, field) && propertyUtils.isReadable(to, field)
+                && propertyUtils.isWriteable(from, field) && propertyUtils.isReadable(from, field);
     }
 
     private <X, Y> void copy(X from, Y to, String field) {
@@ -41,6 +40,7 @@ public class Merger {
             propertyUtils.setProperty(to, field, propertyUtils.getProperty(from, field));
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             LOG.error("get property error: {}", e);
+            throw new MergeException();
         }
     }
 
@@ -49,8 +49,8 @@ public class Merger {
             return !(ignoreNullValue && propertyUtils.getProperty(from, field) == null);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             LOG.error("get property error: {}", e);
+            throw new MergeException();
         }
-        return false;
     }
 
     public Merger ignoreNullValue(boolean ignored) {

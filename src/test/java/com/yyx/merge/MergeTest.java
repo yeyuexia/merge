@@ -3,6 +3,8 @@ package com.yyx.merge;
 import com.exmertec.dummie.Dummie;
 import com.exmertec.dummie.configuration.GenerationStrategy;
 import com.yyx.merge.base.BaseObjectA;
+import com.yyx.merge.base.ObjectWithCustomFieldA;
+import com.yyx.merge.base.ObjectWithCustomFieldB;
 import com.yyx.merge.base.SimpleObjectA;
 import com.yyx.merge.base.SimpleObjectB;
 import com.yyx.merge.base.SubObjectB;
@@ -30,8 +32,6 @@ public class MergeTest {
         Arrays.stream(SimpleObjectB.class.getDeclaredFields())
                 .map(Field::getName)
                 .filter(field -> propertyUtils.isWriteable(to, field))
-                .filter(field -> propertyUtils.isReadable(to, field))
-                .filter(field -> propertyUtils.isWriteable(from, field))
                 .filter(field -> propertyUtils.isReadable(from, field))
                 .forEach(field -> fieldEquals(from, to, field));
     }
@@ -45,8 +45,6 @@ public class MergeTest {
                 .map(Field::getName)
                 .collect(Collectors.toList());
         names.stream().filter(field -> propertyUtils.isWriteable(to, field))
-                .filter(field -> propertyUtils.isReadable(to, field))
-                .filter(field -> propertyUtils.isWriteable(from, field))
                 .filter(field -> propertyUtils.isReadable(from, field))
                 .forEach(field -> fieldEquals(from, to, field));
         names.stream().filter(field -> propertyUtils.isReadable(to, field))
@@ -74,6 +72,19 @@ public class MergeTest {
 
         Arrays.stream(BaseObjectA.class.getDeclaredFields()).map(Field::getName)
                 .forEach(field -> fieldEquals(from, to, field));
+    }
+
+    @Test
+    public void should_merge_custom_object_type_field() throws Exception {
+        ObjectWithCustomFieldA from = Dummie.withStrategy(GenerationStrategy.RANDOM)
+                .create(ObjectWithCustomFieldA.class);
+        ObjectWithCustomFieldB to = new ObjectWithCustomFieldB();
+
+        Merge.merge(from, to);
+        Arrays.stream(to.getCustomFieldA().getClass().getDeclaredFields()).map(Field::getName)
+                .forEach(field -> fieldEquals(from.getCustomFieldA(), to.getCustomFieldA(), field));
+        Arrays.stream(to.getCustomFieldB().getClass().getDeclaredFields()).map(Field::getName)
+                .forEach(field -> fieldEquals(from.getCustomFieldB(), to.getCustomFieldB(), field));
     }
 
     private <X, Y> void fieldNonEquals(X from, Y to, String field) {

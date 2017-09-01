@@ -1,0 +1,22 @@
+package com.yyx.merge.base;
+
+public class ObjectWithCustomFieldA {
+    private SimpleObjectA customFieldA;
+    private SimpleObjectA customFieldB;
+
+    public SimpleObjectA getCustomFieldA() {
+        return customFieldA;
+    }
+
+    public void setCustomFieldA(SimpleObjectA customFieldA) {
+        this.customFieldA = customFieldA;
+    }
+
+    public SimpleObjectA getCustomFieldB() {
+        return customFieldB;
+    }
+
+    public void setCustomFieldB(SimpleObjectA customFieldB) {
+        this.customFieldB = customFieldB;
+    }
+}

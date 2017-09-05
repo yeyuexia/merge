@@ -1,6 +1,6 @@
-package com.yyx.merge.base;
+package com.yyx.merge.base.data;
 
-public class SubObjectB extends BaseObjectA {
+public class SubObject extends BaseObject {
     private String subObjectStringField;
     private Integer subObjectIntegerField;
 

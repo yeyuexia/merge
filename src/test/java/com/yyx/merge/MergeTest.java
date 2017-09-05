@@ -2,27 +2,21 @@ package com.yyx.merge;
 
 import com.exmertec.dummie.Dummie;
 import com.exmertec.dummie.configuration.GenerationStrategy;
-import com.yyx.merge.base.BaseObjectA;
-import com.yyx.merge.base.ObjectWithCustomFieldA;
-import com.yyx.merge.base.ObjectWithCustomFieldB;
-import com.yyx.merge.base.SimpleObjectA;
-import com.yyx.merge.base.SimpleObjectB;
-import com.yyx.merge.base.SubObjectB;
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.PropertyUtilsBean;
+import com.yyx.merge.base.data.BaseObject;
+import com.yyx.merge.base.data.ObjectWithCustomFieldA;
+import com.yyx.merge.base.data.ObjectWithCustomFieldB;
+import com.yyx.merge.base.data.SimpleObjectA;
+import com.yyx.merge.base.data.SimpleObjectB;
+import com.yyx.merge.base.data.SubObject;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
 
-public class MergeTest {
-
-    private PropertyUtilsBean propertyUtils = BeanUtilsBean.getInstance().getPropertyUtils();
+public class MergeTest extends BaseTest {
 
     @Test
     public void should_success_merge_same_name_fields_which_have_getter_and_setter() throws Exception {
@@ -54,23 +48,23 @@ public class MergeTest {
 
     @Test
     public void should_merge_super_class_fields() throws Exception {
-        BaseObjectA from = Dummie.withStrategy(GenerationStrategy.RANDOM).create(BaseObjectA.class);
-        SubObjectB to = new SubObjectB();
+        BaseObject from = Dummie.withStrategy(GenerationStrategy.RANDOM).create(BaseObject.class);
+        SubObject to = new SubObject();
 
         Merge.merge(from, to);
 
-        Arrays.stream(BaseObjectA.class.getDeclaredFields()).map(Field::getName)
+        Arrays.stream(BaseObject.class.getDeclaredFields()).map(Field::getName)
                 .forEach(field -> fieldEquals(from, to, field));
     }
 
     @Test
     public void should_from_object_super_class_fields_success_merge_to_fields() throws Exception {
-        SubObjectB from = Dummie.withStrategy(GenerationStrategy.RANDOM).create(SubObjectB.class);
-        BaseObjectA to = new BaseObjectA();
+        SubObject from = Dummie.withStrategy(GenerationStrategy.RANDOM).create(SubObject.class);
+        BaseObject to = new BaseObject();
 
         Merge.merge(from, to);
 
-        Arrays.stream(BaseObjectA.class.getDeclaredFields()).map(Field::getName)
+        Arrays.stream(BaseObject.class.getDeclaredFields()).map(Field::getName)
                 .forEach(field -> fieldEquals(from, to, field));
     }
 
@@ -85,21 +79,5 @@ public class MergeTest {
                 .forEach(field -> fieldEquals(from.getCustomFieldA(), to.getCustomFieldA(), field));
         Arrays.stream(to.getCustomFieldB().getClass().getDeclaredFields()).map(Field::getName)
                 .forEach(field -> fieldEquals(from.getCustomFieldB(), to.getCustomFieldB(), field));
-    }
-
-    private <X, Y> void fieldNonEquals(X from, Y to, String field) {
-        try {
-            assertEquals(propertyUtils.getProperty(from, field), propertyUtils.getProperty(to, field));
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private <X, Y> void fieldEquals(X from, Y to, String field) {
-        try {
-            assertEquals(propertyUtils.getProperty(from, field), propertyUtils.getProperty(to, field));
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            e.printStackTrace();
-        }
     }
 }

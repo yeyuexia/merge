@@ -16,6 +16,7 @@ import java.util.Set;
 
 public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
     private static final Logger LOG = LoggerFactory.getLogger(DeepCopyCopier.class);
+
     private static final Set<Class<?>> WRAPPER_TYPES = getBasicTypes();
 
     public DeepCopyCopier(Merger merger) {

@@ -12,18 +12,33 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Merger<X, Y> {
     private static final Logger LOG = LoggerFactory.getLogger(Merger.class);
-    private final Boolean ignoreNullValue;
     private final CopierFactory copierFactory;
+    private final Map<Class, Function> customs;
+    private Boolean ignoreNullValue;
 
-    public Merger(Boolean ignoreNullValue) {
-        this.ignoreNullValue = ignoreNullValue;
+    public Merger() {
         this.copierFactory = new CopierFactory(this);
+        this.ignoreNullValue = true;
+        this.customs = new HashMap<>();
+    }
+
+    public Merger ignoreNullValue(Boolean ignoreNullValue) {
+        this.ignoreNullValue = ignoreNullValue;
+        return this;
+    }
+
+    public <F, T> Merger custom(Class<T> specialClass, Function<F, T> generator) {
+        this.customs.put(specialClass, generator);
+        return this;
     }
 
     public boolean merge(X from, Y to) {
@@ -31,7 +46,7 @@ public class Merger<X, Y> {
                 .stream()
                 .filter(field -> isWriteAble(from, to, field))
                 .filter(field -> isNullValue(from, field))
-                .forEach(field -> copierFactory.getCopier().copy(from, to, field));
+                .forEach(field -> copierFactory.getCopier(field.getType(), customs).copy(from, to, field));
         return true;
     }
 

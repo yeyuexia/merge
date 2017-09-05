@@ -1,6 +1,6 @@
-package com.yyx.merge.base;
+package com.yyx.merge.base.data;
 
-public class BaseObjectA {
+public class BaseObject {
     private String baseObjectStringField;
     private Integer baseObjectIntegerField;
 

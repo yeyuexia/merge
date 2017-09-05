@@ -1,4 +1,4 @@
-package com.yyx.merge.base;
+package com.yyx.merge.base.data;
 
 public class SimpleObjectB {
     private int scalarTypeInt;

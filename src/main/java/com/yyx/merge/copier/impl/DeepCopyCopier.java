@@ -24,7 +24,7 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
     }
 
     @Override
-    public void copy(X from, Y to, Field field) {
+    public void copy(X from, Y to, Field field, String path) {
         try {
             Object fieldBean = getFieldValue(from, field);
             BeanUtils.setProperty(to, field.getName(), fieldBean);

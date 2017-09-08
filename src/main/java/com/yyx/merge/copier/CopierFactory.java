@@ -9,10 +9,14 @@ import java.util.function.Function;
 
 public class CopierFactory {
     private final Merger merger;
+    private final Map<Class, Function> customs;
 
-    public CopierFactory(Merger merger) {this.merger = merger;}
+    public CopierFactory(Merger merger, Map<Class, Function> customs) {
+        this.merger = merger;
+        this.customs = customs;
+    }
 
-    public Copier getCopier(Class<?> type, Map<Class, Function> customs) {
+    public Copier getCopier(Class<?> type) {
         return customs.containsKey(type) ? new CustomCopier(customs.get(type), merger) : new DeepCopyCopier(merger);
     }
 }

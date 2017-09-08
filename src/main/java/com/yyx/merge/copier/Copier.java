@@ -9,5 +9,5 @@ public abstract class Copier<X, Y> {
 
     public Copier(Merger merger) {this.merger = merger;}
 
-    public abstract void copy(X from, Y to, Field field);
+    public abstract void copy(X from, Y to, Field field, String path);
 }

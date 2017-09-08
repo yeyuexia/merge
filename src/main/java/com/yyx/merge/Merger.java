@@ -12,7 +12,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,31 +21,24 @@ import java.util.stream.Collectors;
 public class Merger<X, Y> {
     private static final Logger LOG = LoggerFactory.getLogger(Merger.class);
     private final CopierFactory copierFactory;
-    private final Map<Class, Function> customs;
     private Boolean ignoreNullValue;
 
-    public Merger() {
-        this.copierFactory = new CopierFactory(this);
-        this.ignoreNullValue = true;
-        this.customs = new HashMap<>();
-    }
-
-    public Merger ignoreNullValue(Boolean ignoreNullValue) {
+    public Merger(Map<Class, Function> customs, Boolean ignoreNullValue) {
+        this.copierFactory = new CopierFactory(this, customs);
         this.ignoreNullValue = ignoreNullValue;
-        return this;
-    }
 
-    public <F, T> Merger custom(Class<T> specialClass, Function<F, T> generator) {
-        this.customs.put(specialClass, generator);
-        return this;
     }
 
     public boolean merge(X from, Y to) {
+        return merge(from, to, "");
+    }
+
+    public boolean merge(X from, Y to, String path) {
         getFields(to.getClass())
                 .stream()
                 .filter(field -> isWriteAble(from, to, field))
-                .filter(field -> isNullValue(from, field))
-                .forEach(field -> copierFactory.getCopier(field.getType(), customs).copy(from, to, field));
+                .filter(field -> isIgnore(from, field))
+                .forEach(field -> copierFactory.getCopier(field.getType()).copy(from, to, field, path));
         return true;
     }
 
@@ -68,7 +60,7 @@ public class Merger<X, Y> {
         return propertyUtils.isWriteable(to, name) && propertyUtils.isReadable(from, name);
     }
 
-    private boolean isNullValue(X from, Field field) {
+    private boolean isIgnore(X from, Field field) {
         try {
             return !(ignoreNullValue && BeanUtils.getProperty(from, field.getName()) == null);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

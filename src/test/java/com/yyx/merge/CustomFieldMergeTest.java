@@ -16,12 +16,13 @@ import static org.junit.Assert.assertEquals;
 public class CustomFieldMergeTest extends BaseTest {
     @Test
     public void should_use_custom_consumer_do_copy_when_merge_data() throws Exception {
-        Merger merger = Merge.prepare();
-        merger.custom(BaseObject.class, from -> new BaseObject());
+        Merger merger = Merge.prepare().custom(BaseObject.class, from -> new BaseObject()).build();
         ObjectWithCustomField from = Dummie.withStrategy(GenerationStrategy.RANDOM)
                 .create(ObjectWithCustomField.class);
         ObjectWithCustomField to = new ObjectWithCustomField();
+
         merger.merge(from, to);
+
         Arrays.stream(to.getField2().getClass().getDeclaredFields()).map(Field::getName)
                 .forEach(field -> fieldEquals(from.getField2(), to.getField2(), field));
         List<String> fields = Arrays.stream(to.getField1().getClass().getDeclaredFields())

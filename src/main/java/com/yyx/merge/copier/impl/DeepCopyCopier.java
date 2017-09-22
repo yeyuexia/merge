@@ -4,7 +4,6 @@ package com.yyx.merge.copier.impl;
 import com.yyx.merge.Merger;
 import com.yyx.merge.copier.Copier;
 import com.yyx.merge.exception.MergeException;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,19 +18,15 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
 
     private static final Set<Class<?>> WRAPPER_TYPES = getBasicTypes();
 
+    private final Merger merger;
+
     public DeepCopyCopier(Merger merger) {
-        super(merger);
+        this.merger = merger;
     }
 
     @Override
-    public void copy(X from, Y to, Field field, String path) {
-        try {
-            Object fieldBean = getFieldValue(from, field);
-            BeanUtils.setProperty(to, field.getName(), fieldBean);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            LOG.error("get property error: {}", e);
-            throw new MergeException();
-        }
+    public Object copy(X from, Y to, Field field) {
+        return getFieldValue(from, to, field);
     }
 
     public static boolean isWrapperType(Class<?> clazz)
@@ -55,15 +50,9 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
         return ret;
     }
 
-    private Object getFieldValue(X from, Field field) {
+    private Object getFieldValue(X from, Y to, Field field) {
         try {
-            if (field.getType().isEnum() || field.getType().isPrimitive() || isWrapperType(field.getType())) {
-                return BeanUtils.getProperty(from, field.getName());
-            }
-            Object fieldBean = field.getType().newInstance();
-            Object value = BeanUtilsBean.getInstance().getPropertyUtils().getNestedProperty(from, field.getName());
-            merger.merge(value, fieldBean);
-            return fieldBean;
+            return isFinalValue(field) ? getOriginValue(from, field) : getObjectValue(from, to, field);
         } catch (InstantiationException | IllegalAccessException e) {
             LOG.error("init field bean error: {}", e);
             throw new MergeException();
@@ -71,5 +60,20 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
             LOG.error("get property error: {}", e);
             throw new MergeException();
         }
+    }
+
+    private boolean isFinalValue(Field field) {
+        return field.getType().isEnum() || field.getType().isPrimitive() || isWrapperType(field.getType());
+    }
+
+    private Object getObjectValue(X from, Y to, Field field) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
+        Object property = getOriginValue(to, field);
+        Object fieldBean = property == null ? field.getType().newInstance() : property;
+        merger.merge(getOriginValue(from, field), fieldBean);
+        return fieldBean;
+    }
+
+    private Object getOriginValue(Object object, Field field) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        return BeanUtilsBean.getInstance().getPropertyUtils().getNestedProperty(object, field.getName());
     }
 }

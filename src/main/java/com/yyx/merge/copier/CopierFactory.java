@@ -17,6 +17,6 @@ public class CopierFactory {
     }
 
     public Copier getCopier(Class<?> type) {
-        return customs.containsKey(type) ? new CustomCopier(customs.get(type), merger) : new DeepCopyCopier(merger);
+        return customs.containsKey(type) ? new CustomCopier(customs.get(type)) : new DeepCopyCopier(merger);
     }
 }

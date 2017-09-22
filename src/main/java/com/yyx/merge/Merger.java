@@ -34,13 +34,29 @@ public class Merger<X, Y> {
     }
 
     public boolean merge(X from, Y to, String path) {
-        getFields(to.getClass())
+        return getFields(to.getClass())
                 .stream()
                 .filter(field -> isWriteAble(from, to, field))
                 .filter(field -> isIgnore(from, field))
-                .forEach(field -> copierFactory.getCopier(field.getType()).copy(from, to, field, path));
-        return true;
+                .map(field -> updateField(to, field, copierFactory.getCopier(field.getType()).copy(from, to, field)))
+                .collect(Collectors.toList()).stream()
+                .anyMatch(Boolean::booleanValue);
     }
+
+    private boolean updateField(Y to, Field field, Object value) {
+        try {
+            if (value.equals(BeanUtilsBean.getInstance().getPropertyUtils().getNestedProperty(to, field.getName()))) {
+                return false;
+            } else {
+                BeanUtils.setProperty(to, field.getName(), value);
+                return true;
+            }
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     private List<Field> getFields(Class from) {
         if (from == null || from == Object.class) {

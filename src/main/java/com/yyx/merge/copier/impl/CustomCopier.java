@@ -1,9 +1,7 @@
 package com.yyx.merge.copier.impl;
 
-import com.yyx.merge.Merger;
 import com.yyx.merge.copier.Copier;
 import com.yyx.merge.exception.MergeException;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,17 +15,16 @@ public class CustomCopier extends Copier {
 
     private final Function function;
 
-    public CustomCopier(Function function, Merger merger) {
-        super(merger);
+    public CustomCopier(Function function) {
         this.function = function;
     }
 
     @Override
-    public void copy(Object from, Object to, Field field, String path) {
+    public Object copy(Object from, Object to, Field field) {
         try {
             Object value = BeanUtilsBean.getInstance().getPropertyUtils()
                     .getNestedProperty(from, field.getName());
-            BeanUtils.setProperty(to, field.getName(), function.apply(value));
+            return function.apply(value);
         } catch (IllegalAccessException e) {
             LOG.error("init field bean error: {}", e);
             throw new MergeException();

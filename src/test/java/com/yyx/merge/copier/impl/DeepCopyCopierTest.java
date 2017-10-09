@@ -38,7 +38,7 @@ public class DeepCopyCopierTest {
         Merger merger = mock(Merger.class);
         DeepCopyCopier copier = new DeepCopyCopier(merger);
 
-        Object result = copier.copy(from, to, to.getClass().getDeclaredField("customFieldA"), "");
+        copier.copy(from, to, to.getClass().getDeclaredField("customFieldA"), "");
 
         verify(merger, times(1)).merge(any(SimpleObjectA.class), any(SimpleObjectB.class), anyString());
     }
@@ -51,7 +51,7 @@ public class DeepCopyCopierTest {
         Merger merger = mock(Merger.class);
         DeepCopyCopier copier = new DeepCopyCopier(merger);
 
-        Object result = copier.copy(from, to, to.getClass().getDeclaredField("customFieldA"), "");
+        copier.copy(from, to, to.getClass().getDeclaredField("customFieldA"), "");
 
         verify(merger, times(1)).merge(from.getCustomFieldA(), to.getCustomFieldA(), "customFieldA");
     }

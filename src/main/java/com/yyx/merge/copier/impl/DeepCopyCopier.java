@@ -13,7 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.yyx.merge.Helper.getPath;
+import static com.yyx.merge.helper.Helper.getPath;
 
 public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
     private static final Logger LOG = LoggerFactory.getLogger(DeepCopyCopier.class);

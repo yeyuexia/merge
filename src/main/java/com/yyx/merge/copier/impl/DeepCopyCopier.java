@@ -13,6 +13,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.yyx.merge.Helper.getPath;
+
 public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
     private static final Logger LOG = LoggerFactory.getLogger(DeepCopyCopier.class);
 
@@ -25,8 +27,16 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
     }
 
     @Override
-    public Object copy(X from, Y to, Field field) {
-        return getFieldValue(from, to, field);
+    public Object copy(X from, Y to, Field field, String path) {
+        try {
+            return isFinalValue(field) ? getFromValue(from, field) : getObjectValue(from, to, field, path);
+        } catch (InstantiationException | IllegalAccessException e) {
+            LOG.error("init field bean error: {}", e);
+            throw new MergeException();
+        } catch (NoSuchMethodException | InvocationTargetException e) {
+            LOG.error("get property error: {}", e);
+            throw new MergeException();
+        }
     }
 
     public static boolean isWrapperType(Class<?> clazz)
@@ -50,30 +60,18 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
         return ret;
     }
 
-    private Object getFieldValue(X from, Y to, Field field) {
-        try {
-            return isFinalValue(field) ? getOriginValue(from, field) : getObjectValue(from, to, field);
-        } catch (InstantiationException | IllegalAccessException e) {
-            LOG.error("init field bean error: {}", e);
-            throw new MergeException();
-        } catch (NoSuchMethodException | InvocationTargetException e) {
-            LOG.error("get property error: {}", e);
-            throw new MergeException();
-        }
-    }
-
     private boolean isFinalValue(Field field) {
         return field.getType().isEnum() || field.getType().isPrimitive() || isWrapperType(field.getType());
     }
 
-    private Object getObjectValue(X from, Y to, Field field) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Object property = getOriginValue(to, field);
+    private Object getObjectValue(X from, Y to, Field field, String path) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
+        Object property = getFromValue(to, field);
         Object fieldBean = property == null ? field.getType().newInstance() : property;
-        merger.merge(getOriginValue(from, field), fieldBean);
+        merger.merge(getFromValue(from, field), fieldBean, getPath(path, field.getName()));
         return fieldBean;
     }
 
-    private Object getOriginValue(Object object, Field field) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    private Object getFromValue(Object object, Field field) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         return BeanUtilsBean.getInstance().getPropertyUtils().getNestedProperty(object, field.getName());
     }
 }

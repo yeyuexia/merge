@@ -15,7 +15,7 @@ public class CustomCopierTest {
         SimpleObjectB to = new SimpleObjectB();
         CustomCopier copier = new CustomCopier(a -> 1000);
 
-        Object result = copier.copy(from, to, to.getClass().getDeclaredField("scalarTypeInt"));
+        Object result = copier.copy(from, to, to.getClass().getDeclaredField("scalarTypeInt"), "");
 
         assertEquals(result, 1000);
     }

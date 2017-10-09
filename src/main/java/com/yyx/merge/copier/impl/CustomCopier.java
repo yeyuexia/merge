@@ -20,7 +20,7 @@ public class CustomCopier extends Copier {
     }
 
     @Override
-    public Object copy(Object from, Object to, Field field) {
+    public Object copy(Object from, Object to, Field field, String path) {
         try {
             Object value = BeanUtilsBean.getInstance().getPropertyUtils()
                     .getNestedProperty(from, field.getName());

@@ -1,6 +1,7 @@
 package com.yyx.merge;
 
 import com.yyx.merge.copier.CopierFactory;
+import com.yyx.merge.function.FieldUpdateNotifier;
 import com.yyx.merge.exception.MergeException;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
@@ -12,49 +13,74 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.yyx.merge.Helper.getPath;
+
 public class Merger<X, Y> {
     private static final Logger LOG = LoggerFactory.getLogger(Merger.class);
     private final CopierFactory copierFactory;
-    private Boolean ignoreNullValue;
+    private final Map<String, FieldUpdateNotifier> notifiers;
+    private final Boolean ignoreNullValue;
+    private final Map<String, UpdateCollector> collector;
 
-    public Merger(Map<Class, Function> customs, Boolean ignoreNullValue) {
+    public Merger(Map<Class, Function> customs, Map<String, FieldUpdateNotifier> notifiers, Boolean ignoreNullValue) {
         this.copierFactory = new CopierFactory(this, customs);
+        this.notifiers = notifiers;
         this.ignoreNullValue = ignoreNullValue;
-
+        this.collector = new HashMap<>();
     }
 
     public boolean merge(X from, Y to) {
-        return merge(from, to, "");
+        boolean result = merge(from, to, "");
+        sendNotify();
+        return result;
+    }
+
+    private void sendNotify() {
+        collector.entrySet()
+                .forEach(entrySet -> entrySet.getValue().getNotifier().updateNotify(entrySet.getKey(),
+                        entrySet.getValue().getFrom(), entrySet.getValue().getTo()));
     }
 
     public boolean merge(X from, Y to, String path) {
-        return getFields(to.getClass())
+        boolean hasChange = getFields(to.getClass())
                 .stream()
                 .filter(field -> isWriteAble(from, to, field))
                 .filter(field -> isIgnore(from, field))
-                .map(field -> updateField(to, field, copierFactory.getCopier(field.getType()).copy(from, to, field)))
-                .collect(Collectors.toList()).stream()
-                .anyMatch(Boolean::booleanValue);
+                .map(field -> updateField(to, field, path,
+                        copierFactory.getCopier(field.getType()).copy(from, to, field, path)))
+                .collect(Collectors.toList()).stream().anyMatch(Boolean::booleanValue);
+        if (hasChange && notifiers.containsKey(path)) {
+            collector.put(path, new UpdateCollector(to, from, notifiers.get(path)));
+        }
+        return hasChange;
     }
 
-    private boolean updateField(Y to, Field field, Object value) {
+    private boolean updateField(Y to, Field field, String path, Object value) {
         try {
-            if (value.equals(BeanUtilsBean.getInstance().getPropertyUtils().getNestedProperty(to, field.getName()))) {
-                return false;
-            } else {
-                BeanUtils.setProperty(to, field.getName(), value);
+            Object originValue = getNestedProperty(to, field);
+            BeanUtils.setProperty(to, field.getName(), value);
+            if (!value.equals(originValue)) {
+                String fieldPath = getPath(path, field.getName());
+                if (notifiers.containsKey(fieldPath)) {
+                    collector.put(fieldPath, new UpdateCollector(originValue, value, notifiers.get(fieldPath)));
+                }
                 return true;
             }
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            e.printStackTrace();
             return false;
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new MergeException();
         }
+    }
+
+    private Object getNestedProperty(Object to, Field field) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        return BeanUtilsBean.getInstance().getPropertyUtils().getNestedProperty(to, field.getName());
     }
 
 

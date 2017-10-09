@@ -13,6 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -25,7 +26,7 @@ public class DeepCopyCopierTest {
         SimpleObjectB to = new SimpleObjectB();
         DeepCopyCopier copier = new DeepCopyCopier(null);
 
-        Object result = copier.copy(from, to, to.getClass().getDeclaredField("scalarTypeInt"));
+        Object result = copier.copy(from, to, to.getClass().getDeclaredField("scalarTypeInt"), "");
 
         assertEquals(result, from.getScalarTypeInt());
     }
@@ -37,9 +38,9 @@ public class DeepCopyCopierTest {
         Merger merger = mock(Merger.class);
         DeepCopyCopier copier = new DeepCopyCopier(merger);
 
-        Object result = copier.copy(from, to, to.getClass().getDeclaredField("customFieldA"));
+        Object result = copier.copy(from, to, to.getClass().getDeclaredField("customFieldA"), "");
 
-        verify(merger, times(1)).merge(any(SimpleObjectA.class), any(SimpleObjectB.class));
+        verify(merger, times(1)).merge(any(SimpleObjectA.class), any(SimpleObjectB.class), anyString());
     }
 
     @Test
@@ -50,8 +51,8 @@ public class DeepCopyCopierTest {
         Merger merger = mock(Merger.class);
         DeepCopyCopier copier = new DeepCopyCopier(merger);
 
-        Object result = copier.copy(from, to, to.getClass().getDeclaredField("customFieldA"));
+        Object result = copier.copy(from, to, to.getClass().getDeclaredField("customFieldA"), "");
 
-        verify(merger, times(1)).merge(from.getCustomFieldA(), to.getCustomFieldA());
+        verify(merger, times(1)).merge(from.getCustomFieldA(), to.getCustomFieldA(), "customFieldA");
     }
 }

@@ -22,7 +22,7 @@ public class NotifyTest {
         SubObject mock = mock(SubObject.class);
 
         withConfiguration(new MergeConfiguration()
-                .notifyChange("customFieldA.scalarTypeFloat", (name, f, t) -> mock.setSubObjectIntegerField(1)))
+                .notifyUpdate("customFieldA.scalarTypeFloat", (name, f, t) -> mock.setSubObjectIntegerField(1)))
                 .merge(from, to);
 
         verify(mock, times(1)).setSubObjectIntegerField(1);
@@ -36,7 +36,7 @@ public class NotifyTest {
         SubObject mock = mock(SubObject.class);
 
         withConfiguration(new MergeConfiguration()
-                .notifyChange("customFieldA.scalarType", (name, f, t) -> mock.setSubObjectIntegerField(1)))
+                .notifyUpdate("customFieldA.scalarType", (name, f, t) -> mock.setSubObjectIntegerField(1)))
                 .merge(from, to);
 
         verify(mock, times(0)).setSubObjectIntegerField(1);
@@ -52,7 +52,7 @@ public class NotifyTest {
         SubObject mock = mock(SubObject.class);
 
         withConfiguration(new MergeConfiguration()
-                .notifyChange("customFieldA.scalarTypeFloat", (name, f, t) -> mock.setSubObjectIntegerField(1)))
+                .notifyUpdate("customFieldA.scalarTypeFloat", (name, f, t) -> mock.setSubObjectIntegerField(1)))
                 .merge(from, to);
 
         verify(mock, times(0)).setSubObjectIntegerField(1);
@@ -65,7 +65,7 @@ public class NotifyTest {
         ObjectWithCustomFieldB to = new ObjectWithCustomFieldB();
         SubObject mock = mock(SubObject.class);
 
-        withConfiguration(new MergeConfiguration().notifyChange(() -> mock.setSubObjectStringField("1")))
+        withConfiguration(new MergeConfiguration().notifyUpdate(() -> mock.setSubObjectStringField("1")))
                 .merge(from, to);
 
         verify(mock, times(1)).setSubObjectStringField("1");

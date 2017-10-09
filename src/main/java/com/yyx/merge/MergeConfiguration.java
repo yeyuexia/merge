@@ -28,12 +28,12 @@ public class MergeConfiguration {
         return this;
     }
 
-    public MergeConfiguration notifyChange(GlobalUpdateNotifier notifier) {
+    public MergeConfiguration notifyUpdate(GlobalUpdateNotifier notifier) {
         this.notifiers.put("", (fieldName, oldValue, newValue) -> notifier.updateNotify());
         return this;
     }
 
-    public MergeConfiguration notifyChange(String path, FieldUpdateNotifier notifier) {
+    public MergeConfiguration notifyUpdate(String path, FieldUpdateNotifier notifier) {
         this.notifiers.put(path, notifier);
         return this;
     }

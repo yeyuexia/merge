@@ -11,12 +11,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.yyx.merge.Merge.withConfiguration;
 import static org.junit.Assert.assertEquals;
 
 public class CustomFieldMergeTest extends BaseTest {
     @Test
     public void should_use_custom_consumer_do_copy_when_merge_data() throws Exception {
-        Merger merger = Merge.prepare().custom(BaseObject.class, from -> new BaseObject()).build();
+        Merger merger = withConfiguration(new MergeConfiguration().custom(BaseObject.class, from -> new BaseObject()));
         ObjectWithCustomField from = Dummie.withStrategy(GenerationStrategy.RANDOM)
                 .create(ObjectWithCustomField.class);
         ObjectWithCustomField to = new ObjectWithCustomField();

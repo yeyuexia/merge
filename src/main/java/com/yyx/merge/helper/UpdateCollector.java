@@ -1,4 +1,4 @@
-package com.yyx.merge;
+package com.yyx.merge.helper;
 
 import com.yyx.merge.function.FieldUpdateNotifier;
 

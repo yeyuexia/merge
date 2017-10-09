@@ -3,6 +3,7 @@ package com.yyx.merge;
 import com.yyx.merge.copier.CopierFactory;
 import com.yyx.merge.function.FieldUpdateNotifier;
 import com.yyx.merge.exception.MergeException;
+import com.yyx.merge.helper.UpdateCollector;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -20,7 +21,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.yyx.merge.Helper.getPath;
+import static com.yyx.merge.helper.Helper.getPath;
 
 public class Merger<X, Y> {
     private static final Logger LOG = LoggerFactory.getLogger(Merger.class);

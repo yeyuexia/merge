@@ -8,6 +8,7 @@ import com.yyx.merge.base.data.SimpleObjectA;
 import com.yyx.merge.base.data.SubObject;
 import org.junit.Test;
 
+import static com.yyx.merge.Merge.withConfiguration;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,9 +21,8 @@ public class NotifyTest {
         ObjectWithCustomFieldB to = new ObjectWithCustomFieldB();
         SubObject mock = mock(SubObject.class);
 
-        Merge.prepare()
-                .notifyChange("customFieldA.scalarTypeFloat", (name, f, t) -> mock.setSubObjectIntegerField(1))
-                .build()
+        withConfiguration(new MergeConfiguration()
+                .notifyChange("customFieldA.scalarTypeFloat", (name, f, t) -> mock.setSubObjectIntegerField(1)))
                 .merge(from, to);
 
         verify(mock, times(1)).setSubObjectIntegerField(1);
@@ -35,9 +35,8 @@ public class NotifyTest {
         ObjectWithCustomFieldB to = new ObjectWithCustomFieldB();
         SubObject mock = mock(SubObject.class);
 
-        Merge.prepare()
-                .notifyChange("customFieldA.scalarType", (name, f, t) -> mock.setSubObjectIntegerField(1))
-                .build()
+        withConfiguration(new MergeConfiguration()
+                .notifyChange("customFieldA.scalarType", (name, f, t) -> mock.setSubObjectIntegerField(1)))
                 .merge(from, to);
 
         verify(mock, times(0)).setSubObjectIntegerField(1);
@@ -52,9 +51,8 @@ public class NotifyTest {
         to.getCustomFieldA().setScalarTypeFloat(from.getCustomFieldA().getScalarTypeFloat());
         SubObject mock = mock(SubObject.class);
 
-        Merge.prepare()
-                .notifyChange("customFieldA.scalarTypeFloat", (name, f, t) -> mock.setSubObjectIntegerField(1))
-                .build()
+        withConfiguration(new MergeConfiguration()
+                .notifyChange("customFieldA.scalarTypeFloat", (name, f, t) -> mock.setSubObjectIntegerField(1)))
                 .merge(from, to);
 
         verify(mock, times(0)).setSubObjectIntegerField(1);
@@ -67,8 +65,7 @@ public class NotifyTest {
         ObjectWithCustomFieldB to = new ObjectWithCustomFieldB();
         SubObject mock = mock(SubObject.class);
 
-        Merge.prepare().notifyChange(() -> mock.setSubObjectStringField("1"))
-                .build()
+        withConfiguration(new MergeConfiguration().notifyChange(() -> mock.setSubObjectStringField("1")))
                 .merge(from, to);
 
         verify(mock, times(1)).setSubObjectStringField("1");

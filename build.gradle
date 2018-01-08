@@ -1,12 +1,78 @@
-group 'io.github.yeyuexia'
-version '1.0-SNAPSHOT'
-
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+group 'io.github.yeyuexia'
+archivesBaseName = "merge"
+version '1.0'
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'merge'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'An easy way to merge one bean into another bean.'
+                url 'https://github.com/yeyuexia/merge'
+
+                scm {
+                    connection 'scm:git@github.com:yeyuexia/merge.git'
+                    developerConnection 'scm:git@github.com:yeyuexia/merge.git'
+                    url 'https://github.com/yeyuexia/merge'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'yeyuexia'
+                        name 'Liu Zhuo'
+                        email 'yyxworld@gmail.com'
+                    }
+                }
+            }
+        }
+    }
 }
 
 dependencies {

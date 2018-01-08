@@ -1,9 +1,13 @@
 # merge [![Build Status](https://travis-ci.org/yeyuexia/merge.svg?branch=master)](https://travis-ci.org/yeyuexia/merge) 
-merge one bean into another bean.
+A lightweight tool to merge one bean into another bean.
 
 ### Usage
 
-* Basic use
+* Add Dependency
+```groovy
+compile "io.github.yeyuexia:merge:1.0"
+```
+* Basic Use
 ```java
 public class A {
     private AnyTypeA a;

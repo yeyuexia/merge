@@ -8,6 +8,7 @@ import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldB;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
 import io.github.yeyuexia.merge.base.data.SimpleObjectB;
 import io.github.yeyuexia.merge.base.data.SubObject;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -25,8 +26,8 @@ public class MergeTest extends BaseTest {
         Merge.merge(from, to);
         Arrays.stream(SimpleObjectB.class.getDeclaredFields())
                 .map(Field::getName)
-                .filter(field -> propertyUtils.isWriteable(to, field))
-                .filter(field -> propertyUtils.isReadable(from, field))
+                .filter(field -> PropertyUtils.isWriteable(to, field))
+                .filter(field -> PropertyUtils.isReadable(from, field))
                 .forEach(field -> fieldEquals(from, to, field));
     }
 
@@ -38,11 +39,11 @@ public class MergeTest extends BaseTest {
         List<String> names = Arrays.stream(SimpleObjectB.class.getDeclaredFields())
                 .map(Field::getName)
                 .collect(Collectors.toList());
-        names.stream().filter(field -> propertyUtils.isWriteable(to, field))
-                .filter(field -> propertyUtils.isReadable(from, field))
+        names.stream().filter(field -> PropertyUtils.isWriteable(to, field))
+                .filter(field -> PropertyUtils.isReadable(from, field))
                 .forEach(field -> fieldEquals(from, to, field));
-        names.stream().filter(field -> propertyUtils.isReadable(to, field))
-                .filter(field -> !propertyUtils.isWriteable(to, field))
+        names.stream().filter(field -> PropertyUtils.isReadable(to, field))
+                .filter(field -> !PropertyUtils.isWriteable(to, field))
                 .forEach(field -> fieldNonEquals(from, to, field));
     }
 
@@ -75,6 +76,7 @@ public class MergeTest extends BaseTest {
         ObjectWithCustomFieldB to = new ObjectWithCustomFieldB();
 
         Merge.merge(from, to);
+
         Arrays.stream(to.getCustomFieldA().getClass().getDeclaredFields()).map(Field::getName)
                 .forEach(field -> fieldEquals(from.getCustomFieldA(), to.getCustomFieldA(), field));
         Arrays.stream(to.getCustomFieldB().getClass().getDeclaredFields()).map(Field::getName)

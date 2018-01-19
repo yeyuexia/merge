@@ -5,7 +5,7 @@ import io.github.yeyuexia.merge.Merger;
 import io.github.yeyuexia.merge.copier.Copier;
 import io.github.yeyuexia.merge.exception.MergeException;
 import io.github.yeyuexia.merge.helper.Helper;
-import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +28,11 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
     @Override
     public Object copy(X from, Y to, Field field, String path) {
         try {
-            return isFinalValue(field) ? getFromValue(from, field) : getObjectValue(from, to, field, path);
+            return isFinalValue(field) ? PropertyUtils.getNestedProperty(from, field.getName()) : getObjectValue(from, to, field, path);
         } catch (InstantiationException | IllegalAccessException e) {
             LOG.error("init field bean error: {}", e);
             throw new MergeException();
-        } catch (NoSuchMethodException | InvocationTargetException e) {
+        } catch (NoSuchMethodException | NoSuchFieldException | InvocationTargetException e) {
             LOG.error("get property error: {}", e);
             throw new MergeException();
         }
@@ -63,14 +63,19 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
         return field.getType().isEnum() || field.getType().isPrimitive() || isWrapperType(field.getType());
     }
 
-    private Object getObjectValue(X from, Y to, Field field, String path) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
-        Object property = getFromValue(to, field);
-        Object fieldBean = property == null ? field.getType().newInstance() : property;
-        merger.merge(getFromValue(from, field), fieldBean, Helper.getPath(path, field.getName()));
+    private Object getObjectValue(X from, Y to, Field field, String path) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException, NoSuchFieldException {
+        Object toValue = PropertyUtils.getNestedProperty(to, field.getName());
+        Object fromValue = PropertyUtils.getNestedProperty(from, field.getName());
+        Object fieldBean = toValue == null ? generateInstance(fromValue, field) : toValue;
+        merger.merge(fromValue, fieldBean, Helper.getPath(path, field.getName()));
         return fieldBean;
     }
 
-    private Object getFromValue(Object object, Field field) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        return BeanUtilsBean.getInstance().getPropertyUtils().getNestedProperty(object, field.getName());
+    private Object generateInstance(Object fromValue, Field field) throws NoSuchFieldException, InstantiationException, IllegalAccessException {
+        if (field.getType().isInstance(fromValue)) {
+            return fromValue.getClass().newInstance();
+        } else {
+            return field.getType().newInstance();
+        }
     }
 }

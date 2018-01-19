@@ -1,13 +1,12 @@
 package io.github.yeyuexia.merge;
 
 import io.github.yeyuexia.merge.copier.CopierFactory;
-import io.github.yeyuexia.merge.function.FieldUpdateNotifier;
 import io.github.yeyuexia.merge.exception.MergeException;
-import io.github.yeyuexia.merge.helper.UpdateCollector;
+import io.github.yeyuexia.merge.function.FieldUpdateNotifier;
 import io.github.yeyuexia.merge.helper.Helper;
+import io.github.yeyuexia.merge.helper.UpdateCollector;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +41,6 @@ public class Merger<X, Y> {
         return result;
     }
 
-    private void sendNotify() {
-        collector.entrySet()
-                .forEach(entrySet -> entrySet.getValue().getNotifier().updateNotify(entrySet.getKey(),
-                        entrySet.getValue().getFrom(), entrySet.getValue().getTo()));
-    }
-
     public boolean merge(X from, Y to, String path) {
         boolean hasChange = getFields(to.getClass())
                 .stream()
@@ -62,9 +55,15 @@ public class Merger<X, Y> {
         return hasChange;
     }
 
+    private void sendNotify() {
+        collector.entrySet().forEach(entrySet -> entrySet.getValue()
+                .getNotifier()
+                .updateNotify(entrySet.getKey(), entrySet.getValue().getFrom(), entrySet.getValue().getTo()));
+    }
+
     private boolean updateField(Y to, Field field, String path, Object value) {
         try {
-            Object originValue = getNestedProperty(to, field);
+            Object originValue = getSimpleProperty(to, field);
             BeanUtils.setProperty(to, field.getName(), value);
             if (!value.equals(originValue)) {
                 String fieldPath = Helper.getPath(path, field.getName());
@@ -74,15 +73,10 @@ public class Merger<X, Y> {
                 return true;
             }
             return false;
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new MergeException();
         }
     }
-
-    private Object getNestedProperty(Object to, Field field) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        return BeanUtilsBean.getInstance().getPropertyUtils().getNestedProperty(to, field.getName());
-    }
-
 
     private List<Field> getFields(Class from) {
         if (from == null || from == Object.class) {
@@ -97,9 +91,7 @@ public class Merger<X, Y> {
     }
 
     private boolean isWriteAble(X from, Y to, Field field) {
-        String name = field.getName();
-        PropertyUtilsBean propertyUtils = BeanUtilsBean.getInstance().getPropertyUtils();
-        return propertyUtils.isWriteable(to, name) && propertyUtils.isReadable(from, name);
+        return PropertyUtils.isWriteable(to, field.getName()) && PropertyUtils.isReadable(from, field.getName());
     }
 
     private boolean isIgnore(X from, Field field) {
@@ -111,4 +103,11 @@ public class Merger<X, Y> {
         }
     }
 
+    private Object getSimpleProperty(Object to, Field field) {
+        try {
+            return PropertyUtils.getSimpleProperty(to, field.getName());
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new MergeException();
+        }
+    }
 }

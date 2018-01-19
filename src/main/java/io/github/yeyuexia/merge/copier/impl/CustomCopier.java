@@ -2,7 +2,7 @@ package io.github.yeyuexia.merge.copier.impl;
 
 import io.github.yeyuexia.merge.copier.Copier;
 import io.github.yeyuexia.merge.exception.MergeException;
-import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +22,7 @@ public class CustomCopier extends Copier {
     @Override
     public Object copy(Object from, Object to, Field field, String path) {
         try {
-            Object value = BeanUtilsBean.getInstance().getPropertyUtils()
-                    .getNestedProperty(from, field.getName());
+            Object value = PropertyUtils.getNestedProperty(from, field.getName());
             return function.apply(value);
         } catch (IllegalAccessException e) {
             LOG.error("init field bean error: {}", e);

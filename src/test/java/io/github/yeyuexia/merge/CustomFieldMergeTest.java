@@ -4,6 +4,7 @@ import com.exmertec.dummie.Dummie;
 import com.exmertec.dummie.configuration.GenerationStrategy;
 import io.github.yeyuexia.merge.base.data.BaseObject;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -29,7 +30,7 @@ public class CustomFieldMergeTest extends BaseTest {
                 .map(Field::getName)
                 .collect(Collectors.toList());
         for (String field : fields) {
-            assertEquals(null, propertyUtils.getProperty(to.getField1(), field));
+            assertEquals(null, PropertyUtils.getProperty(to.getField1(), field));
         }
     }
 

@@ -84,13 +84,12 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
 
     private void mergeCollectionValue(Collection fromValue, Collection toValue, Class type,
                                       String path) throws NoSuchFieldException, InstantiationException, IllegalAccessException {
-        Iterator toIterator = toValue.iterator();
-        int index = 0;
-
         if (isFinalValue(type)) {
             toValue.clear();
             toValue.addAll(fromValue);
         } else {
+            int index = 0;
+            Iterator toIterator = toValue.iterator();
             for (Object from : fromValue) {
                 Object to;
                 if (toIterator.hasNext()) {

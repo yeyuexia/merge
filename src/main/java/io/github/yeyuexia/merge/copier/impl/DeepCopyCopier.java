@@ -11,7 +11,12 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
@@ -28,7 +33,8 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
     @Override
     public Object copy(X from, Y to, Field field, String path) {
         try {
-            return isFinalValue(field) ? PropertyUtils.getSimpleProperty(from, field.getName()) : getObjectValue(from, to, field, path);
+            return isFinalValue(field.getType()) ? PropertyUtils.getSimpleProperty(from, field.getName()) :
+                   getObjectValue(from, to, field, path);
         } catch (InstantiationException | IllegalAccessException e) {
             LOG.error("init field bean error: {}", e);
             throw new MergeException();
@@ -57,25 +63,55 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
         return ret;
     }
 
-    private boolean isFinalValue(Field field) {
-        return field.getType().isEnum() || field.getType().isPrimitive() || isWrapperType(field.getType());
+    private boolean isFinalValue(Class type) {
+        return type.isEnum() || type.isPrimitive() || isWrapperType(type);
     }
 
     private Object getObjectValue(X from, Y to, Field field, String path) throws IllegalAccessException,
             InvocationTargetException, NoSuchMethodException, InstantiationException, NoSuchFieldException {
         Object toValue = PropertyUtils.getSimpleProperty(to, field.getName());
         Object fromValue = PropertyUtils.getSimpleProperty(from, field.getName());
-        Object fieldBean = toValue == null ? generateInstance(fromValue, field) : toValue;
-        merger.merge(fromValue, fieldBean, Helper.getPath(path, field.getName()));
+        Object fieldBean = toValue == null ? generateInstance(fromValue, field.getType()) : toValue;
+        if (fieldBean instanceof Collection) {
+            Type[] actualTypeArguments = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
+            mergeCollectionValue((Collection) fromValue, (Collection) fieldBean, (Class) actualTypeArguments[0],
+                    Helper.getPath(path, field.getName()));
+        } else {
+            merger.merge(fromValue, fieldBean, Helper.getPath(path, field.getName()));
+        }
         return fieldBean;
     }
 
-    private Object generateInstance(Object fromValue, Field field) throws NoSuchFieldException,
+    private void mergeCollectionValue(Collection fromValue, Collection toValue, Class type,
+                                      String path) throws NoSuchFieldException, InstantiationException, IllegalAccessException {
+        Iterator toIterator = toValue.iterator();
+        int index = 0;
+
+        if (isFinalValue(type)) {
+            toValue.clear();
+            toValue.addAll(fromValue);
+        } else {
+            for (Object from : fromValue) {
+                Object to;
+                if (toIterator.hasNext()) {
+                    to = toIterator.next();
+                } else {
+                    to = generateInstance(from, type);
+                    toValue.add(to);
+                }
+                merger.merge(from, to, Helper.getCollectionPath(path,
+                        toValue.getClass().isInstance(List.class) ? String.valueOf(index) : "?"));
+                index++;
+            }
+        }
+    }
+
+    private Object generateInstance(Object fromValue, Class type) throws NoSuchFieldException,
             InstantiationException, IllegalAccessException {
-        if (field.getType().isInstance(fromValue)) {
+        if (type.isInstance(fromValue)) {
             return fromValue.getClass().newInstance();
         } else {
-            return field.getType().newInstance();
+            return type.newInstance();
         }
     }
 }

@@ -1,4 +1,9 @@
-apply plugin: 'java'
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'findbugs'
+    id 'checkstyle'
+}
 apply plugin: 'maven'
 apply plugin: 'signing'
 
@@ -82,4 +87,87 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile "org.mockito:mockito-all:1.10.19"
     testCompile group: 'com.exmertec.dummie', name: 'dummie', version: '0.1.0'
+}
+
+checkstyle {
+    toolVersion '8.1'
+    ignoreFailures = false
+    configFile file("$project.rootDir/config/checkstyle/google_checks.xml")
+    sourceSets = [sourceSets.main]
+
+    checkstyleMain {
+        source = 'src/main/java'
+    }
+    checkstyleTest {
+        source = 'src/test/java'
+    }
+}
+
+findbugs {
+    ignoreFailures = false
+    toolVersion = "3.0.1"
+    sourceSets = [sourceSets.main]
+    excludeFilter = file("$project.rootDir/config/findbugs/excludeFilter.xml")
+    reportsDir = file("$project.buildDir/reports/findbugs")
+    effort = "max"
+}
+
+jacoco {
+    toolVersion = "0.8.2"
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            excludes = [
+                    '**.function.*',
+                    '**.exception.*'
+            ]
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.6
+            }
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.6
+            }
+            limit {
+                counter = 'METHOD'
+                value = 'COVEREDRATIO'
+                minimum = 0.6
+            }
+            limit {
+                counter = 'CLASS'
+                value = 'COVEREDRATIO'
+                minimum = 0.6
+            }
+        }
+    }
+    dependsOn(jacocoTestReport)
+}
+
+check.dependsOn jacocoTestCoverageVerification
+
+copy {
+    from "./config/githooks/"
+    into "./.git/hooks/"
+    fileMode 0755
 }

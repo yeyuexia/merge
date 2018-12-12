@@ -6,4 +6,4 @@ os:
  - linux
 install: true
 script:
- - ./gradlew clean test
+ - ./gradlew clean check

@@ -1,22 +1,23 @@
 package io.github.yeyuexia.merge.base.data;
 
 public class ObjectWithCustomFieldB {
-    private SimpleObjectA customFieldA;
-    private SimpleObjectB customFieldB;
 
-    public SimpleObjectA getCustomFieldA() {
-        return customFieldA;
-    }
+  private SimpleObjectA customFieldA;
+  private SimpleObjectB customFieldB;
 
-    public void setCustomFieldA(SimpleObjectA customFieldA) {
-        this.customFieldA = customFieldA;
-    }
+  public SimpleObjectA getCustomFieldA() {
+    return customFieldA;
+  }
 
-    public SimpleObjectB getCustomFieldB() {
-        return customFieldB;
-    }
+  public void setCustomFieldA(SimpleObjectA customFieldA) {
+    this.customFieldA = customFieldA;
+  }
 
-    public void setCustomFieldB(SimpleObjectB customFieldB) {
-        this.customFieldB = customFieldB;
-    }
+  public SimpleObjectB getCustomFieldB() {
+    return customFieldB;
+  }
+
+  public void setCustomFieldB(SimpleObjectB customFieldB) {
+    this.customFieldB = customFieldB;
+  }
 }

@@ -1,121 +1,122 @@
 package io.github.yeyuexia.merge.base.data;
 
 public class SimpleObjectA {
-    private int scalarTypeInt;
-    private float scalarTypeFloat;
-    private double scalarTypeDouble;
-    private boolean scalarTypeBoolean;
-    private byte scalarTypeByte;
-    private char scalarTypeChar;
-    private Integer objectTypeInteger;
-    private Float objectTypeFloat;
-    private Double objectTypeDouble;
-    private Boolean objectTypeBoolean;
-    private Byte objectTypeByte;
-    private Character objectTypeCharacter;
-    private String objectTypeString;
 
-    public int getScalarTypeInt() {
-        return scalarTypeInt;
-    }
+  private int scalarTypeInt;
+  private float scalarTypeFloat;
+  private double scalarTypeDouble;
+  private boolean scalarTypeBoolean;
+  private byte scalarTypeByte;
+  private char scalarTypeChar;
+  private Integer objectTypeInteger;
+  private Float objectTypeFloat;
+  private Double objectTypeDouble;
+  private Boolean objectTypeBoolean;
+  private Byte objectTypeByte;
+  private Character objectTypeCharacter;
+  private String objectTypeString;
 
-    public void setScalarTypeInt(int scalarTypeInt) {
-        this.scalarTypeInt = scalarTypeInt;
-    }
+  public int getScalarTypeInt() {
+    return scalarTypeInt;
+  }
 
-    public float getScalarTypeFloat() {
-        return scalarTypeFloat;
-    }
+  public void setScalarTypeInt(int scalarTypeInt) {
+    this.scalarTypeInt = scalarTypeInt;
+  }
 
-    public void setScalarTypeFloat(float scalarTypeFloat) {
-        this.scalarTypeFloat = scalarTypeFloat;
-    }
+  public float getScalarTypeFloat() {
+    return scalarTypeFloat;
+  }
 
-    public double getScalarTypeDouble() {
-        return scalarTypeDouble;
-    }
+  public void setScalarTypeFloat(float scalarTypeFloat) {
+    this.scalarTypeFloat = scalarTypeFloat;
+  }
 
-    public void setScalarTypeDouble(double scalarTypeDouble) {
-        this.scalarTypeDouble = scalarTypeDouble;
-    }
+  public double getScalarTypeDouble() {
+    return scalarTypeDouble;
+  }
 
-    public boolean isScalarTypeBoolean() {
-        return scalarTypeBoolean;
-    }
+  public void setScalarTypeDouble(double scalarTypeDouble) {
+    this.scalarTypeDouble = scalarTypeDouble;
+  }
 
-    public void setScalarTypeBoolean(boolean scalarTypeBoolean) {
-        this.scalarTypeBoolean = scalarTypeBoolean;
-    }
+  public boolean isScalarTypeBoolean() {
+    return scalarTypeBoolean;
+  }
 
-    public byte getScalarTypeByte() {
-        return scalarTypeByte;
-    }
+  public void setScalarTypeBoolean(boolean scalarTypeBoolean) {
+    this.scalarTypeBoolean = scalarTypeBoolean;
+  }
 
-    public void setScalarTypeByte(byte scalarTypeByte) {
-        this.scalarTypeByte = scalarTypeByte;
-    }
+  public byte getScalarTypeByte() {
+    return scalarTypeByte;
+  }
 
-    public char getScalarTypeChar() {
-        return scalarTypeChar;
-    }
+  public void setScalarTypeByte(byte scalarTypeByte) {
+    this.scalarTypeByte = scalarTypeByte;
+  }
 
-    public void setScalarTypeChar(char scalarTypeChar) {
-        this.scalarTypeChar = scalarTypeChar;
-    }
+  public char getScalarTypeChar() {
+    return scalarTypeChar;
+  }
 
-    public Integer getObjectTypeInteger() {
-        return objectTypeInteger;
-    }
+  public void setScalarTypeChar(char scalarTypeChar) {
+    this.scalarTypeChar = scalarTypeChar;
+  }
 
-    public void setObjectTypeInteger(Integer objectTypeInteger) {
-        this.objectTypeInteger = objectTypeInteger;
-    }
+  public Integer getObjectTypeInteger() {
+    return objectTypeInteger;
+  }
 
-    public Float getObjectTypeFloat() {
-        return objectTypeFloat;
-    }
+  public void setObjectTypeInteger(Integer objectTypeInteger) {
+    this.objectTypeInteger = objectTypeInteger;
+  }
 
-    public void setObjectTypeFloat(Float objectTypeFloat) {
-        this.objectTypeFloat = objectTypeFloat;
-    }
+  public Float getObjectTypeFloat() {
+    return objectTypeFloat;
+  }
 
-    public Double getObjectTypeDouble() {
-        return objectTypeDouble;
-    }
+  public void setObjectTypeFloat(Float objectTypeFloat) {
+    this.objectTypeFloat = objectTypeFloat;
+  }
 
-    public void setObjectTypeDouble(Double objectTypeDouble) {
-        this.objectTypeDouble = objectTypeDouble;
-    }
+  public Double getObjectTypeDouble() {
+    return objectTypeDouble;
+  }
 
-    public Boolean getObjectTypeBoolean() {
-        return objectTypeBoolean;
-    }
+  public void setObjectTypeDouble(Double objectTypeDouble) {
+    this.objectTypeDouble = objectTypeDouble;
+  }
 
-    public void setObjectTypeBoolean(Boolean objectTypeBoolean) {
-        this.objectTypeBoolean = objectTypeBoolean;
-    }
+  public Boolean getObjectTypeBoolean() {
+    return objectTypeBoolean;
+  }
 
-    public Byte getObjectTypeByte() {
-        return objectTypeByte;
-    }
+  public void setObjectTypeBoolean(Boolean objectTypeBoolean) {
+    this.objectTypeBoolean = objectTypeBoolean;
+  }
 
-    public void setObjectTypeByte(Byte objectTypeByte) {
-        this.objectTypeByte = objectTypeByte;
-    }
+  public Byte getObjectTypeByte() {
+    return objectTypeByte;
+  }
 
-    public Character getObjectTypeCharacter() {
-        return objectTypeCharacter;
-    }
+  public void setObjectTypeByte(Byte objectTypeByte) {
+    this.objectTypeByte = objectTypeByte;
+  }
 
-    public void setObjectTypeCharacter(Character objectTypeCharacter) {
-        this.objectTypeCharacter = objectTypeCharacter;
-    }
+  public Character getObjectTypeCharacter() {
+    return objectTypeCharacter;
+  }
 
-    public String getObjectTypeString() {
-        return objectTypeString;
-    }
+  public void setObjectTypeCharacter(Character objectTypeCharacter) {
+    this.objectTypeCharacter = objectTypeCharacter;
+  }
 
-    public void setObjectTypeString(String objectTypeString) {
-        this.objectTypeString = objectTypeString;
-    }
+  public String getObjectTypeString() {
+    return objectTypeString;
+  }
+
+  public void setObjectTypeString(String objectTypeString) {
+    this.objectTypeString = objectTypeString;
+  }
 }

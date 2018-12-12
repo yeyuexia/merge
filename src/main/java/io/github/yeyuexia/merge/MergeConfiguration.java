@@ -2,51 +2,63 @@ package io.github.yeyuexia.merge;
 
 import io.github.yeyuexia.merge.function.FieldUpdateNotifier;
 import io.github.yeyuexia.merge.function.GlobalUpdateNotifier;
-
+import io.github.yeyuexia.merge.function.OrdinaryFieldUpdateNotifier;
+import io.github.yeyuexia.merge.function.OrdinaryGlobalUpdateNotifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class MergeConfiguration {
-    private final Map<Class, Function> customs;
-    private final Map<String, FieldUpdateNotifier> notifiers;
-    private Boolean ignoreNullValue;
+public class MergeConfiguration<Target, Source> {
 
-    public MergeConfiguration() {
-        this.customs = new HashMap<>();
-        this.notifiers = new HashMap<>();
-        this.ignoreNullValue = true;
-    }
+  private final Map<Class, Function> customs;
+  private final Map<String, FieldUpdateNotifier<Target, Source>> notifiers;
+  private Boolean ignoreNullValue;
 
-    public MergeConfiguration ignoreNullValue(Boolean ignoreNullValue) {
-        this.ignoreNullValue = ignoreNullValue;
-        return this;
-    }
+  public MergeConfiguration() {
+    this.customs = new HashMap<>();
+    this.notifiers = new HashMap<>();
+    this.ignoreNullValue = true;
+  }
 
-    public <F, T> MergeConfiguration custom(Class<T> specialClass, Function<F, T> generator) {
-        this.customs.put(specialClass, generator);
-        return this;
-    }
+  public MergeConfiguration ignoreNullValue(Boolean ignoreNullValue) {
+    this.ignoreNullValue = ignoreNullValue;
+    return this;
+  }
 
-    public MergeConfiguration notifyUpdate(GlobalUpdateNotifier notifier) {
-        this.notifiers.put("", (fieldName, oldValue, newValue) -> notifier.updateNotify());
-        return this;
-    }
+  public <F, T> MergeConfiguration custom(Class<T> specialClass, Function<F, T> generator) {
+    this.customs.put(specialClass, generator);
+    return this;
+  }
 
-    public MergeConfiguration notifyUpdate(String path, FieldUpdateNotifier notifier) {
-        this.notifiers.put(path, notifier);
-        return this;
-    }
+  public MergeConfiguration notifyUpdate(GlobalUpdateNotifier notifier) {
+    this.notifiers.put("", (fieldName, target, source, oldValue, newValue) -> notifier.updateNotify(target, source));
+    return this;
+  }
 
-    public Map<Class, Function> getCustoms() {
-        return customs;
-    }
+  public MergeConfiguration notifyUpdate(OrdinaryGlobalUpdateNotifier notifier) {
+    this.notifiers.put("", (fieldName, target, source, oldValue, newValue) -> notifier.updateNotify());
+    return this;
+  }
 
-    public Map<String, FieldUpdateNotifier> getNotifiers() {
-        return notifiers;
-    }
+  public MergeConfiguration notifyUpdate(String path, FieldUpdateNotifier notifier) {
+    this.notifiers.put(path, (fieldName, target, source, oldValue, newValue) -> notifier.updateNotify(fieldName, target, source, oldValue, newValue));
+    return this;
+  }
 
-    public Boolean getIgnoreNullValue() {
-        return ignoreNullValue;
-    }
+  public MergeConfiguration notifyUpdate(String path, OrdinaryFieldUpdateNotifier notifier) {
+    this.notifiers.put(path, (fieldName, target, source, oldValue, newValue) -> notifier.updateNotify(fieldName, oldValue, newValue));
+    return this;
+  }
+
+  public Map<Class, Function> getCustoms() {
+    return customs;
+  }
+
+  public Map<String, FieldUpdateNotifier<Target, Source>> getNotifiers() {
+    return notifiers;
+  }
+
+  public Boolean getIgnoreNullValue() {
+    return ignoreNullValue;
+  }
 }

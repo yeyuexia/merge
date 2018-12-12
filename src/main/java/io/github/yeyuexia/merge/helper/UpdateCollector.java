@@ -3,25 +3,26 @@ package io.github.yeyuexia.merge.helper;
 import io.github.yeyuexia.merge.function.FieldUpdateNotifier;
 
 public class UpdateCollector {
-    private final Object from;
-    private final Object to;
-    private final FieldUpdateNotifier notifier;
 
-    public UpdateCollector(Object from, Object to, FieldUpdateNotifier notifier) {
-        this.from = from;
-        this.to = to;
-        this.notifier = notifier;
-    }
+  private final Object from;
+  private final Object to;
+  private final FieldUpdateNotifier notifier;
 
-    public Object getFrom() {
-        return from;
-    }
+  public UpdateCollector(Object from, Object to, FieldUpdateNotifier notifier) {
+    this.from = from;
+    this.to = to;
+    this.notifier = notifier;
+  }
 
-    public Object getTo() {
-        return to;
-    }
+  public Object getFrom() {
+    return from;
+  }
 
-    public FieldUpdateNotifier getNotifier() {
-        return notifier;
-    }
+  public Object getTo() {
+    return to;
+  }
+
+  public FieldUpdateNotifier getNotifier() {
+    return notifier;
+  }
 }

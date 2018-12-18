@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -69,7 +70,7 @@ public class Merger<From, To> {
     try {
       Object originValue = getSimpleProperty(to, field);
       BeanUtils.setProperty(to, field.getName(), value);
-      if (!value.equals(originValue)) {
+      if (!Objects.equals(value, originValue)) {
         String fieldPath = Helper.getPath(path, field.getName());
         if (notifiers.containsKey(fieldPath)) {
           collector.put(fieldPath, new UpdateCollector(originValue, value, notifiers.get(fieldPath)));

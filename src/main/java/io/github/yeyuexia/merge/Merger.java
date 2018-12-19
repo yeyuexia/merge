@@ -1,6 +1,7 @@
 package io.github.yeyuexia.merge;
 
 import io.github.yeyuexia.merge.copier.CopierFactory;
+import io.github.yeyuexia.merge.copier.CustomerCopierAdapter;
 import io.github.yeyuexia.merge.exception.MergeException;
 import io.github.yeyuexia.merge.function.FieldUpdateNotifier;
 import io.github.yeyuexia.merge.helper.Helper;
@@ -14,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -31,7 +31,7 @@ public class Merger<From, To> {
   private From source;
   private To target;
 
-  public Merger(Map<Class, Function> customs, Map<String, FieldUpdateNotifier> notifiers, Boolean ignoreNullValue) {
+  public Merger(Map<Class, Set<CustomerCopierAdapter>> customs, Map<String, FieldUpdateNotifier> notifiers, Boolean ignoreNullValue) {
     this.copierFactory = new CopierFactory(this, customs);
     this.notifiers = notifiers;
     this.ignoreNullValue = ignoreNullValue;
@@ -46,13 +46,12 @@ public class Merger<From, To> {
     return result;
   }
 
-  public boolean merge(From from, To to, String path) {
+  public <Source, Target> boolean merge(Source from, Target to, String path) {
     boolean hasChange = getFields(to.getClass())
         .stream()
         .filter(field -> isWriteAble(from, to, field))
         .filter(field -> isIgnore(from, field))
-        .map(field -> updateField(to, field, path,
-            copierFactory.getCopier(field.getType()).copy(from, to, field, path)))
+        .map(field -> updateField(from, to, field, path))
         .collect(Collectors.toList()).stream().anyMatch(Boolean::booleanValue);
     if (hasChange && notifiers.containsKey(path)) {
       collector.put(path, new UpdateCollector(to, from, notifiers.get(path)));
@@ -63,10 +62,20 @@ public class Merger<From, To> {
   private void sendNotify() {
     collector.entrySet().forEach(entrySet -> entrySet.getValue()
         .getNotifier()
-        .updateNotify(entrySet.getKey(), target, source, entrySet.getValue().getFrom(), entrySet.getValue().getTo()));
+        .updateNotify(entrySet.getKey(), source, target, entrySet.getValue().getFrom(), entrySet.getValue().getTo()));
   }
 
-  private boolean updateField(To to, Field field, String path, Object value) {
+  private <Source, Target> boolean updateField(Source from, Target to, Field field, String path) {
+    try {
+      Object fromValue = PropertyUtils.getSimpleProperty(from, field.getName());
+      Object toValue = copierFactory.getCopier(field.getType(), fromValue).copy(from, to, field, path);
+      return updateField(to, field, path, toValue);
+    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      throw new MergeException();
+    }
+  }
+
+  private <Target> boolean updateField(Target to, Field field, String path, Object value) {
     try {
       Object originValue = getSimpleProperty(to, field);
       BeanUtils.setProperty(to, field.getName(), value);
@@ -96,11 +105,11 @@ public class Merger<From, To> {
     return fields;
   }
 
-  private boolean isWriteAble(From from, To to, Field field) {
+  private <Source, Target> boolean isWriteAble(Source from, Target to, Field field) {
     return PropertyUtils.isWriteable(to, field.getName()) && PropertyUtils.isReadable(from, field.getName());
   }
 
-  private boolean isIgnore(From from, Field field) {
+  private <Source> boolean isIgnore(Source from, Field field) {
     try {
       return !(ignoreNullValue && BeanUtils.getProperty(from, field.getName()) == null);
     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

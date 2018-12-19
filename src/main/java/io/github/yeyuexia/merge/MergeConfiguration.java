@@ -1,17 +1,20 @@
 package io.github.yeyuexia.merge;
 
+import io.github.yeyuexia.merge.copier.CustomerCopierAdapter;
 import io.github.yeyuexia.merge.function.FieldUpdateNotifier;
 import io.github.yeyuexia.merge.function.GlobalUpdateNotifier;
 import io.github.yeyuexia.merge.function.OrdinaryFieldUpdateNotifier;
 import io.github.yeyuexia.merge.function.OrdinaryGlobalUpdateNotifier;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
-public class MergeConfiguration<Target, Source> {
+public class MergeConfiguration<Source, Target> {
 
-  private final Map<Class, Function> customs;
-  private final Map<String, FieldUpdateNotifier<Target, Source>> notifiers;
+  private final Map<Class, Set<CustomerCopierAdapter>> customs;
+  private final Map<String, FieldUpdateNotifier<Source, Target>> notifiers;
   private Boolean ignoreNullValue;
 
   public MergeConfiguration() {
@@ -20,41 +23,48 @@ public class MergeConfiguration<Target, Source> {
     this.ignoreNullValue = true;
   }
 
-  public MergeConfiguration ignoreNullValue(Boolean ignoreNullValue) {
+  public MergeConfiguration<Source, Target> ignoreNullValue(Boolean ignoreNullValue) {
     this.ignoreNullValue = ignoreNullValue;
     return this;
   }
 
-  public <F, T> MergeConfiguration custom(Class<T> specialClass, Function<F, T> generator) {
-    this.customs.put(specialClass, generator);
+  public <From, To> MergeConfiguration<Source, Target> custom(Class<To> specialClass, Function<From, To> generator) {
+    this.customs.putIfAbsent(specialClass, new HashSet<>());
+    this.customs.get(specialClass).add(new CustomerCopierAdapter(Object.class, generator));
     return this;
   }
 
-  public MergeConfiguration notifyUpdate(GlobalUpdateNotifier notifier) {
+  public <From, To> MergeConfiguration<Source, Target> custom(Class<To> specialClass, Class<From> sourceClass, Function<From, To> generator) {
+    this.customs.putIfAbsent(specialClass, new HashSet<>());
+    this.customs.get(specialClass).add(new CustomerCopierAdapter<>(sourceClass, generator));
+    return this;
+  }
+
+  public MergeConfiguration<Source, Target> notifyUpdate(GlobalUpdateNotifier<Source, Target> notifier) {
     this.notifiers.put("", (fieldName, target, source, oldValue, newValue) -> notifier.updateNotify(target, source));
     return this;
   }
 
-  public MergeConfiguration notifyUpdate(OrdinaryGlobalUpdateNotifier notifier) {
+  public MergeConfiguration<Source, Target> notifyUpdate(OrdinaryGlobalUpdateNotifier notifier) {
     this.notifiers.put("", (fieldName, target, source, oldValue, newValue) -> notifier.updateNotify());
     return this;
   }
 
-  public MergeConfiguration notifyUpdate(String path, FieldUpdateNotifier notifier) {
-    this.notifiers.put(path, (fieldName, target, source, oldValue, newValue) -> notifier.updateNotify(fieldName, target, source, oldValue, newValue));
+  public MergeConfiguration<Source, Target> notifyUpdate(String path, FieldUpdateNotifier<Source, Target> notifier) {
+    this.notifiers.put(path, (fieldName, source, target, oldValue, newValue) -> notifier.updateNotify(fieldName, source, target, oldValue, newValue));
     return this;
   }
 
-  public MergeConfiguration notifyUpdate(String path, OrdinaryFieldUpdateNotifier notifier) {
-    this.notifiers.put(path, (fieldName, target, source, oldValue, newValue) -> notifier.updateNotify(fieldName, oldValue, newValue));
+  public MergeConfiguration<Source, Target> notifyUpdate(String path, OrdinaryFieldUpdateNotifier notifier) {
+    this.notifiers.put(path, (fieldName, source, target, oldValue, newValue) -> notifier.updateNotify(fieldName, oldValue, newValue));
     return this;
   }
 
-  public Map<Class, Function> getCustoms() {
+  public Map<Class, Set<CustomerCopierAdapter>> getCustoms() {
     return customs;
   }
 
-  public Map<String, FieldUpdateNotifier<Target, Source>> getNotifiers() {
+  public Map<String, FieldUpdateNotifier<Source, Target>> getNotifiers() {
     return notifiers;
   }
 

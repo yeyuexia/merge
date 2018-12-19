@@ -1,12 +1,13 @@
 package io.github.yeyuexia.merge.copier.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 import com.exmertec.dummie.Dummie;
 import com.exmertec.dummie.configuration.GenerationStrategy;
+import com.google.common.collect.Sets;
+import io.github.yeyuexia.merge.copier.CustomerCopierAdapter;
 import io.github.yeyuexia.merge.base.data.BaseObject;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
 import io.github.yeyuexia.merge.base.data.SimpleObjectB;
@@ -20,7 +21,7 @@ public class CustomCopierTest {
   public void should_get_copy_use_custom_generator() throws NoSuchFieldException {
     SimpleObjectA from = Dummie.withStrategy(GenerationStrategy.RANDOM).create(SimpleObjectA.class);
     SimpleObjectB to = new SimpleObjectB();
-    CustomCopier copier = new CustomCopier(a -> 1000);
+    CustomCopier copier = new CustomCopier(Sets.newHashSet(new CustomerCopierAdapter<>(Object.class, a -> 1000)));
 
     Object result = copier.copy(from, to, to.getClass().getDeclaredField("scalarTypeInt"), "");
 
@@ -32,8 +33,7 @@ public class CustomCopierTest {
     SimpleObjectA from = Dummie.withStrategy(GenerationStrategy.RANDOM).create(SimpleObjectA.class);
     BaseObject to = new BaseObject();
     Function function = mock(Function.class);
-    CustomCopier copier = new CustomCopier(function);
-
+    CustomCopier copier = new CustomCopier(Sets.newHashSet(new CustomerCopierAdapter<>(Object.class, function)));
 
     copier.copy(from, to, to.getClass().getDeclaredField("baseObjectIntegerField"), "");
   }

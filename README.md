@@ -5,7 +5,7 @@ A lightweight tool to merge one bean into another bean.
 
 * Add Dependency
 ```groovy
-compile "io.github.yeyuexia:merge:1.1"
+compile "io.github.yeyuexia:merge:1.3"
 ```
 * Basic Use
 ```java
@@ -61,7 +61,7 @@ A from = new A();
 from.setA("a");
 B to = new B();
 
-MergeConfiguration configuration = new MergeConfiguration().custom(AnyTypeA.class, from -> "c");
+MergeConfiguration configuration = new MergeConfiguration<>().custom(AnyTypeA.class, from -> "c");
 withConfiguration(configuration).merge(from, to);
 
 assertEquals(to.getA(), "c");
@@ -74,7 +74,7 @@ assertEquals(to.getA(), "c");
     A from = new A();
     from.setA("a");
     B to = new B();
-    withConfiguration(new MergeConfiguration().updateNotify(() -> mock.notifyUpdate())).merge(from, to);
+    withConfiguration(new MergeConfiguration<>().updateNotify(() -> mock.notifyUpdate())).merge(from, to);
   
     verify(mock, times(1)).notifyUpdate();
     ```
@@ -84,7 +84,7 @@ assertEquals(to.getA(), "c");
     A from = new A();
     from.setA("a");
     B to = new B();
-    withConfiguration(new MergeConfiguration().updateNotify("a", (path, f, t) -> mock.notifyUpdate())).merge(from, to);
+    withConfiguration(new MergeConfiguration<>().updateNotify("a", (path, f, t) -> mock.notifyUpdate())).merge(from, to);
   
     verify(mock, times(1)).notifyUpdate();
     ```

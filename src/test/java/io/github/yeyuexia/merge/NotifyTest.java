@@ -17,7 +17,7 @@ import org.junit.Test;
 public class NotifyTest {
 
   @Test
-  public void should_success_notify_change_when_field_value_updated() throws Exception {
+  public void should_success_notify_change_when_field_value_updated() {
     ObjectWithCustomFieldA from = Dummie.withStrategy(GenerationStrategy.RANDOM)
         .create(ObjectWithCustomFieldA.class);
     ObjectWithCustomFieldB to = new ObjectWithCustomFieldB();
@@ -31,7 +31,7 @@ public class NotifyTest {
   }
 
   @Test
-  public void should_not_notify_change_if_use_wrong_path() throws Exception {
+  public void should_not_notify_change_if_use_wrong_path() {
     ObjectWithCustomFieldA from = Dummie.withStrategy(GenerationStrategy.RANDOM)
         .create(ObjectWithCustomFieldA.class);
     ObjectWithCustomFieldB to = new ObjectWithCustomFieldB();
@@ -80,9 +80,13 @@ public class NotifyTest {
     SimpleObjectB to = new SimpleObjectB();
     String objectTypeString = "123 321";
 
-    Merge.withConfiguration(new MergeConfiguration().notifyUpdate((target, source) -> from.setObjectTypeString(objectTypeString)))
+    Merge.withConfiguration(new MergeConfiguration<SimpleObjectA, SimpleObjectB>().notifyUpdate(this::notifyChange))
         .merge(from, to);
 
-    assertEquals(objectTypeString, from.getObjectTypeString());
+    assertEquals(objectTypeString, to.getObjectTypeString());
+  }
+
+  private void notifyChange(SimpleObjectA from, SimpleObjectB to) {
+    to.setObjectTypeString("123 321");
   }
 }

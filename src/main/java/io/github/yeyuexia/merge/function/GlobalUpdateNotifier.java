@@ -1,6 +1,6 @@
 package io.github.yeyuexia.merge.function;
 
-public interface GlobalUpdateNotifier<Target, Source> {
+public interface GlobalUpdateNotifier<Source, Target> {
 
-  void updateNotify(Target target, Source source);
+  void updateNotify(Source source, Target target);
 }

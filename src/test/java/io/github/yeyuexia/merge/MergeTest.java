@@ -1,14 +1,23 @@
 package io.github.yeyuexia.merge;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Mockito.mock;
+
 import com.exmertec.dummie.Dummie;
 import com.exmertec.dummie.configuration.GenerationStrategy;
 import io.github.yeyuexia.merge.base.data.BaseObject;
+import io.github.yeyuexia.merge.base.data.ImmutableFieldObject;
 import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldA;
 import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldB;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
 import io.github.yeyuexia.merge.base.data.SimpleObjectB;
 import io.github.yeyuexia.merge.base.data.SubObject;
+import io.github.yeyuexia.merge.copier.impl.DeepCopyCopier;
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,6 +93,38 @@ public class MergeTest extends BaseTest {
         .filter(field -> !field.isSynthetic())
         .map(Field::getName)
         .forEach(field -> fieldEquals(from.getCustomFieldA(), to.getCustomFieldA(), field));
+    Arrays.stream(to.getCustomFieldB().getClass().getDeclaredFields())
+        .filter(field -> !field.isSynthetic())
+        .map(Field::getName)
+        .forEach(field -> fieldEquals(from.getCustomFieldB(), to.getCustomFieldB(), field));
+  }
+
+  @Test
+  public void should_return_from_value_when_the_type_is_immutableType() {
+    ImmutableFieldObject from = new ImmutableFieldObject();
+    from.setLocalDateTime(LocalDateTime.now());
+    from.setOffsetDateTime(OffsetDateTime.now());
+    from.setZonedDateTime(ZonedDateTime.now());
+    ImmutableFieldObject to = new ImmutableFieldObject();
+
+    Merge.merge(from, to);
+
+    Arrays.stream(ImmutableFieldObject.class.getDeclaredFields())
+        .filter(field -> !field.isSynthetic())
+        .map(Field::getName)
+        .forEach(field -> fieldEquals(from, to, field));
+  }
+
+  @Test
+  public void should_return_from_value_when_given_custom_immutableType() {
+    ObjectWithCustomFieldA from = Dummie.withStrategy(GenerationStrategy.RANDOM)
+        .create(ObjectWithCustomFieldA.class);
+    ObjectWithCustomFieldB to = new ObjectWithCustomFieldB();
+
+    Merge.withConfiguration(new MergeConfiguration<>().immutableTypes(SimpleObjectA.class)).merge(from, to);
+
+    assertEquals(from.getCustomFieldA(), to.getCustomFieldA());
+    assertNotEquals(from.getCustomFieldB(), to.getCustomFieldB());
     Arrays.stream(to.getCustomFieldB().getClass().getDeclaredFields())
         .filter(field -> !field.isSynthetic())
         .map(Field::getName)

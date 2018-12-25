@@ -12,6 +12,7 @@ public final class MergerBuilder {
   }
 
   public Merger build() {
-    return new Merger(configuration.getCustoms(), configuration.getNotifiers(), configuration.getIgnoreNullValue());
+    return new Merger(configuration.getCustoms(), configuration.getNotifiers(),
+        configuration.getIgnoreNullValue(), configuration.getCustomImmutableTypes());
   }
 }

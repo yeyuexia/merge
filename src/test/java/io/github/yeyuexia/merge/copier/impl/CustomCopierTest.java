@@ -1,16 +1,15 @@
 package io.github.yeyuexia.merge.copier.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 import com.exmertec.dummie.Dummie;
 import com.exmertec.dummie.configuration.GenerationStrategy;
 import com.google.common.collect.Sets;
-import io.github.yeyuexia.merge.copier.CustomerCopierAdapter;
 import io.github.yeyuexia.merge.base.data.BaseObject;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
 import io.github.yeyuexia.merge.base.data.SimpleObjectB;
+import io.github.yeyuexia.merge.copier.CustomerCopierAdapter;
 import io.github.yeyuexia.merge.exception.MergeException;
 import java.util.function.Function;
 import org.junit.Test;

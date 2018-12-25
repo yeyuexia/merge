@@ -5,6 +5,8 @@ import io.github.yeyuexia.merge.function.FieldUpdateNotifier;
 import io.github.yeyuexia.merge.function.GlobalUpdateNotifier;
 import io.github.yeyuexia.merge.function.OrdinaryFieldUpdateNotifier;
 import io.github.yeyuexia.merge.function.OrdinaryGlobalUpdateNotifier;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -15,11 +17,13 @@ public class MergeConfiguration<Source, Target> {
 
   private final Map<Class, Set<CustomerCopierAdapter>> customs;
   private final Map<String, FieldUpdateNotifier<Source, Target>> notifiers;
+  private final Set<Class> customImmutableTypes;
   private Boolean ignoreNullValue;
 
   public MergeConfiguration() {
     this.customs = new HashMap<>();
     this.notifiers = new HashMap<>();
+    this.customImmutableTypes = new HashSet<>();
     this.ignoreNullValue = true;
   }
 
@@ -60,6 +64,16 @@ public class MergeConfiguration<Source, Target> {
     return this;
   }
 
+  public MergeConfiguration<Source, Target> immutableTypes(Class... immutableClasses) {
+    this.customImmutableTypes.addAll(Arrays.asList(immutableClasses));
+    return this;
+  }
+
+  public MergeConfiguration<Source, Target> immutableTypes(Collection<Class> immutableClasses) {
+    this.customImmutableTypes.addAll(immutableClasses);
+    return this;
+  }
+
   public Map<Class, Set<CustomerCopierAdapter>> getCustoms() {
     return customs;
   }
@@ -70,5 +84,9 @@ public class MergeConfiguration<Source, Target> {
 
   public Boolean getIgnoreNullValue() {
     return ignoreNullValue;
+  }
+
+  public Set<Class> getCustomImmutableTypes() {
+    return customImmutableTypes;
   }
 }

@@ -28,13 +28,16 @@ public class Merger<From, To> {
   private final Map<String, FieldUpdateNotifier> notifiers;
   private final Boolean ignoreNullValue;
   private final Map<String, UpdateCollector> collector;
+  private final Set<Class> customImmutableTypes;
   private From source;
   private To target;
 
-  public Merger(Map<Class, Set<CustomerCopierAdapter>> customs, Map<String, FieldUpdateNotifier> notifiers, Boolean ignoreNullValue) {
+  public Merger(Map<Class, Set<CustomerCopierAdapter>> customs, Map<String, FieldUpdateNotifier> notifiers,
+      Boolean ignoreNullValue, Set<Class> customImmutableTypes) {
     this.copierFactory = new CopierFactory(this, customs);
     this.notifiers = notifiers;
     this.ignoreNullValue = ignoreNullValue;
+    this.customImmutableTypes = customImmutableTypes;
     this.collector = new HashMap<>();
   }
 
@@ -57,6 +60,10 @@ public class Merger<From, To> {
       collector.put(path, new UpdateCollector(to, from, notifiers.get(path)));
     }
     return hasChange;
+  }
+
+  public Set<Class> getCustomImmutableTypes() {
+    return customImmutableTypes;
   }
 
   private void sendNotify() {

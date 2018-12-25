@@ -5,7 +5,7 @@ A lightweight tool to merge one bean into another bean.
 
 * Add Dependency
 ```groovy
-compile "io.github.yeyuexia:merge:1.3"
+compile "io.github.yeyuexia:merge:1.4"
 ```
 * Basic Use
 ```java
@@ -53,6 +53,10 @@ assertEqual(to.getB(), null);
 ```
 
 ### Advance Usage
+* Immutable type support. Now `merge` auto identify the immutable types: `ZonedDateTime`, `LocalDateTime`, `OffsetDateTime` and `BigDecimal`, you can also pre-define the immutable types in `MergeConfiguration` so that `merge` can discern them and do right way.
+```java
+new MergeConfiguration<>().immutableTypes(SimpleObjectA.class)
+```
 
 * Custom copier operation
 We can set a custom copier only special target class.

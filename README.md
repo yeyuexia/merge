@@ -1,4 +1,4 @@
-# merge [![Build Status](https://travis-ci.org/yeyuexia/merge.svg?branch=master)](https://travis-ci.org/yeyuexia/merge) 
+# Merge [![Build Status](https://travis-ci.org/yeyuexia/merge.svg?branch=master)](https://travis-ci.org/yeyuexia/merge) [![Maven Central](https://img.shields.io/maven-central/v/io.github.yeyuexia/merge.svg)](https://search.maven.org/search?q=g:io.github.yeyuexia%20AND%20a:merge)
 A lightweight tool to merge one bean into another bean.
 
 ### Usage
@@ -76,7 +76,8 @@ A from = new A();
 from.setA("a");
 B to = new B();
 
-MergeConfiguration configuration = new MergeConfiguration<>().custom(TargetTypeInB.class, SourTypeInA.class, from -> "c");
+MergeConfiguration configuration = new MergeConfiguration<>()
+  .custom(TargetTypeInB.class, SourTypeInA.class, from -> "c");
 withConfiguration(configuration).merge(from, to);
 
 assertEquals(to.getA(), "c");
@@ -98,7 +99,8 @@ assertEquals(to.getA(), "c");
     A from = new A();
     from.setA("a");
     B to = new B();
-    withConfiguration(new MergeConfiguration<A, B>().updateNotify((source, target) -> target.setUpdateDate(now()))).merge(from, to);
+    withConfiguration(new MergeConfiguration<A, B>()
+      .updateNotify((source, target) -> target.setUpdateDate(now()))).merge(from, to);
   
     verify(mock, times(1)).notifyUpdate();
     ```
@@ -107,7 +109,8 @@ assertEquals(to.getA(), "c");
     A from = new A();
     from.setA("a");
     B to = new B();
-    withConfiguration(new MergeConfiguration<>().updateNotify("a", (path, f, t) -> mock.notifyUpdate())).merge(from, to);
+    withConfiguration(new MergeConfiguration<>()
+      .updateNotify("a", (path, f, t) -> mock.notifyUpdate())).merge(from, to);
   
     verify(mock, times(1)).notifyUpdate();
     ```
@@ -116,7 +119,8 @@ assertEquals(to.getA(), "c");
     A from = new A();
     from.setA("a");
     B to = new B();
-    withConfiguration(new MergeConfiguration<A, B>().updateNotify("a", (path, source, target, f, t) -> target.setUpdateDate(now()))).merge(from, to);
+    withConfiguration(new MergeConfiguration<A, B>()
+      .updateNotify("a", (path, source, target, f, t) -> target.setUpdateDate(now()))).merge(from, to);
   
     verify(mock, times(1)).notifyUpdate();
     ```

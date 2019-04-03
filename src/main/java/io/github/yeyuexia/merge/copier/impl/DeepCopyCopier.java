@@ -105,17 +105,23 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
     } else {
       int index = 0;
       Iterator toIterator = toValue.iterator();
-      for (Object from : fromValue) {
-        Object to;
-        if (toIterator.hasNext()) {
-          to = toIterator.next();
-        } else {
-          to = generateInstance(from, type);
-          toValue.add(to);
+      Iterator fromIterator = fromValue.iterator();
+      while (toIterator.hasNext()) {
+        index++;
+        Object to = toIterator.next();
+        if (fromIterator.hasNext()) {
+          Object from = fromIterator.next();
+          merger.merge(from, to, Helper.getCollectionPath(path,
+              toValue.getClass().isInstance(List.class) ? String.valueOf(index) : "?"));
         }
+      }
+      while (fromIterator.hasNext()) {
+        index++;
+        Object from = fromIterator.next();
+        Object to = generateInstance(from, type);
+        toValue.add(to);
         merger.merge(from, to, Helper.getCollectionPath(path,
             toValue.getClass().isInstance(List.class) ? String.valueOf(index) : "?"));
-        index++;
       }
     }
   }

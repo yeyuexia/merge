@@ -9,11 +9,18 @@ import static org.mockito.Mockito.verify;
 
 import com.exmertec.dummie.Dummie;
 import com.exmertec.dummie.configuration.GenerationStrategy;
+import com.google.common.collect.Lists;
 import io.github.yeyuexia.merge.Merger;
+import io.github.yeyuexia.merge.base.data.BaseObject;
+import io.github.yeyuexia.merge.base.data.ListObject;
 import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldA;
 import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldB;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
 import io.github.yeyuexia.merge.base.data.SimpleObjectB;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -55,5 +62,21 @@ public class DeepCopyCopierTest {
     copier.copy(from, to, to.getClass().getDeclaredField("customFieldA"), "");
 
     verify(merger, times(1)).merge(from.getCustomFieldA(), to.getCustomFieldA(), "customFieldA");
+  }
+
+  @Test
+  public void should_success_merge_list_when_from_length_larger_than_to_length() throws Exception {
+    ListObject from = new ListObject();
+    from.setObjects(IntStream.range(0, 5)
+        .mapToObj(i -> Dummie.withStrategy(GenerationStrategy.RANDOM).create(BaseObject.class))
+        .collect(Collectors.toList()));
+    ListObject to = new ListObject();
+    to.setObjects(Lists.newArrayList());
+    Merger merger = mock(Merger.class);
+    DeepCopyCopier copier = new DeepCopyCopier(merger);
+
+    copier.copy(from, to, to.getClass().getDeclaredField("objects"), "");
+
+    assertEquals(from.getObjects().size(), to.getObjects().size());
   }
 }

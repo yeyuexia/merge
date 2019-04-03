@@ -15,10 +15,10 @@ import io.github.yeyuexia.merge.base.data.BaseObject;
 import io.github.yeyuexia.merge.base.data.ListObject;
 import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldA;
 import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldB;
+import io.github.yeyuexia.merge.base.data.SimpleListObject;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
 import io.github.yeyuexia.merge.base.data.SimpleObjectB;
 import java.util.Arrays;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Test;
@@ -78,5 +78,22 @@ public class DeepCopyCopierTest {
     copier.copy(from, to, to.getClass().getDeclaredField("objects"), "");
 
     assertEquals(from.getObjects().size(), to.getObjects().size());
+  }
+
+  @Test
+  public void should_update_first_two_element_when_from_list_only_has_two_element() throws Exception {
+    SimpleListObject from = new SimpleListObject();
+    from.setNumbers(Arrays.asList(1, 2));
+    SimpleListObject to = new SimpleListObject();
+    to.setNumbers(Lists.newArrayList(3, 4, 5));
+
+    Merger merger = mock(Merger.class);
+    DeepCopyCopier copier = new DeepCopyCopier(merger);
+
+    copier.copy(from, to, to.getClass().getDeclaredField("numbers"), "");
+
+    assertEquals(3, to.getNumbers().size());
+    assertEquals(from.getNumbers().get(0), to.getNumbers().get(0));
+    assertEquals(from.getNumbers().get(1), to.getNumbers().get(1));
   }
 }

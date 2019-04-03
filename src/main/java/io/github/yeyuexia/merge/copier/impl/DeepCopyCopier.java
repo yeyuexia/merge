@@ -71,7 +71,7 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
     } catch (InstantiationException | IllegalAccessException e) {
       LOG.error("Init field bean error: {}", e);
       throw new MergeException();
-    } catch (NoSuchMethodException | NoSuchFieldException | InvocationTargetException e) {
+    } catch (NoSuchMethodException | InvocationTargetException e) {
       LOG.error("Get property error: {}", e);
       throw new MergeException();
     }
@@ -83,7 +83,7 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
   }
 
   private Object getObjectValue(X from, Y to, Field field, String path) throws IllegalAccessException,
-      InvocationTargetException, NoSuchMethodException, InstantiationException, NoSuchFieldException {
+      InvocationTargetException, NoSuchMethodException, InstantiationException {
     Object toValue = PropertyUtils.getSimpleProperty(to, field.getName());
     Object fromValue = PropertyUtils.getSimpleProperty(from, field.getName());
     Object fieldBean = toValue == null ? generateInstance(fromValue, field.getType()) : toValue;
@@ -98,10 +98,16 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
   }
 
   private void mergeCollectionValue(Collection fromValue, Collection toValue, Class type,
-      String path) throws NoSuchFieldException, InstantiationException, IllegalAccessException {
+      String path) throws InstantiationException, IllegalAccessException {
     if (isImmutableType(type)) {
+      Object[] objects = toValue.toArray();
       toValue.clear();
       toValue.addAll(fromValue);
+      if (fromValue.size() < objects.length) {
+        for (int i = fromValue.size(); i < objects.length; i++) {
+          toValue.add(objects[i]);
+        }
+      }
     } else {
       int index = 0;
       Iterator toIterator = toValue.iterator();
@@ -126,8 +132,7 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
     }
   }
 
-  private Object generateInstance(Object fromValue, Class type) throws NoSuchFieldException,
-      InstantiationException, IllegalAccessException {
+  private Object generateInstance(Object fromValue, Class type) throws InstantiationException, IllegalAccessException {
     if (type.isInstance(fromValue)) {
       return fromValue.getClass().newInstance();
     } else {

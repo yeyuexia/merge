@@ -84,6 +84,7 @@ assertEquals(to.getA(), "c");
 ```
 
 * Notify update
+
   All notifiers would be invoked after merge operation finish, so that we can do anything in notifier and don't need to worry interfere the merge operation.
     * global
     ```java

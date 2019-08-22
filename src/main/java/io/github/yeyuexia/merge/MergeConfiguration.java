@@ -45,12 +45,12 @@ public class MergeConfiguration<Source, Target> {
   }
 
   public MergeConfiguration<Source, Target> notifyUpdate(GlobalUpdateNotifier<Source, Target> notifier) {
-    this.notifiers.put("", (fieldName, target, source, oldValue, newValue) -> notifier.updateNotify(target, source));
+    this.notifiers.put("", (fieldName, source, target, oldValue, newValue) -> notifier.updateNotify(source, target));
     return this;
   }
 
   public MergeConfiguration<Source, Target> notifyUpdate(OrdinaryGlobalUpdateNotifier notifier) {
-    this.notifiers.put("", (fieldName, target, source, oldValue, newValue) -> notifier.updateNotify());
+    this.notifiers.put("", (fieldName, source, target, oldValue, newValue) -> notifier.updateNotify());
     return this;
   }
 

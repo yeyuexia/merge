@@ -7,6 +7,7 @@ import com.exmertec.dummie.Dummie;
 import com.exmertec.dummie.configuration.GenerationStrategy;
 import io.github.yeyuexia.merge.base.data.BaseObject;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
+import io.github.yeyuexia.merge.helper.MergerHelper;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +19,7 @@ public class CustomFieldMergeTest extends BaseTest {
 
   @Test
   public void should_use_custom_consumer_do_copy_when_merge_data() throws Exception {
-    Merger merger = Merge.withConfiguration(new MergeConfiguration<>()
+    MergerHelper merger = Merge.withConfiguration(new MergeConfiguration<>()
         .custom(BaseObject.class, BaseObject.class, this::toBaseObject));
     ObjectWithCustomField from = Dummie.withStrategy(GenerationStrategy.RANDOM)
         .create(ObjectWithCustomField.class);
@@ -41,7 +42,7 @@ public class CustomFieldMergeTest extends BaseTest {
 
   @Test
   public void should_success_merge_when_customer_value_as_null() {
-    Merger merger = Merge.withConfiguration(new MergeConfiguration<>()
+    MergerHelper merger = Merge.withConfiguration(new MergeConfiguration<>()
         .custom(BaseObject.class, BaseObject.class, source -> null));
     ObjectWithCustomField from = Dummie.withStrategy(GenerationStrategy.RANDOM)
         .create(ObjectWithCustomField.class);
@@ -58,7 +59,7 @@ public class CustomFieldMergeTest extends BaseTest {
 
   @Test
   public void should_use_custom_consumer_do_copy_when_merge_data_and_not_special_source_class_type() throws Exception {
-    Merger merger = Merge.withConfiguration(new MergeConfiguration<>()
+    MergerHelper merger = Merge.withConfiguration(new MergeConfiguration<>()
         .custom(BaseObject.class, this::toBaseObject));
     ObjectWithCustomField from = Dummie.withStrategy(GenerationStrategy.RANDOM)
         .create(ObjectWithCustomField.class);

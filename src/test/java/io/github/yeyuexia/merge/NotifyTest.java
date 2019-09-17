@@ -2,6 +2,7 @@ package io.github.yeyuexia.merge;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -12,6 +13,7 @@ import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldB;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
 import io.github.yeyuexia.merge.base.data.SimpleObjectB;
 import io.github.yeyuexia.merge.base.data.SubObject;
+import java.util.Arrays;
 import org.junit.Test;
 
 public class NotifyTest {
@@ -27,7 +29,38 @@ public class NotifyTest {
         .notifyUpdate("customFieldA.scalarTypeFloat", (name, f, t) -> mock.setSubObjectIntegerField(1)))
         .merge(from, to);
 
-    verify(mock, times(1)).setSubObjectIntegerField(1);
+    verify(mock).setSubObjectIntegerField(1);
+  }
+
+  @Test
+  public void should_success_notify_when_all_path_changed() {
+    ObjectWithCustomFieldA from = Dummie.withStrategy(GenerationStrategy.RANDOM)
+        .create(ObjectWithCustomFieldA.class);
+    ObjectWithCustomFieldB to = new ObjectWithCustomFieldB();
+    SubObject mock = mock(SubObject.class);
+
+    Merge.withConfiguration(new MergeConfiguration()
+        .notifyUpdate(Arrays.asList("customFieldA.scalarTypeFloat", "customFieldA.scalarTypeDouble"),
+            (name, f, t) -> mock.setSubObjectIntegerField(1)))
+        .merge(from, to);
+
+    verify(mock).setSubObjectIntegerField(1);
+  }
+
+  @Test
+  public void should_not_notify_when_not_all_path_changed() {
+    ObjectWithCustomFieldA from = Dummie.withStrategy(GenerationStrategy.RANDOM)
+        .create(ObjectWithCustomFieldA.class);
+    ObjectWithCustomFieldB to = Dummie.create(ObjectWithCustomFieldB.class);
+    from.getCustomFieldA().setScalarTypeDouble(to.getCustomFieldA().getScalarTypeDouble());
+    SubObject mock = mock(SubObject.class);
+
+    Merge.withConfiguration(new MergeConfiguration()
+        .notifyUpdate(Arrays.asList("customFieldA.scalarTypeFloat", "customFieldA.scalarTypeDouble"),
+            (name, f, t) -> mock.setSubObjectIntegerField(1)))
+        .merge(from, to);
+
+    verify(mock, never()).setSubObjectIntegerField(1);
   }
 
   @Test
@@ -41,7 +74,7 @@ public class NotifyTest {
         .notifyUpdate("customFieldA.scalarType", (name, f, t) -> mock.setSubObjectIntegerField(1)))
         .merge(from, to);
 
-    verify(mock, times(0)).setSubObjectIntegerField(1);
+    verify(mock, never()).setSubObjectIntegerField(1);
   }
 
   @Test
@@ -57,7 +90,7 @@ public class NotifyTest {
         .notifyUpdate("customFieldA.scalarTypeFloat", (name, f, t) -> mock.setSubObjectIntegerField(1)))
         .merge(from, to);
 
-    verify(mock, times(0)).setSubObjectIntegerField(1);
+    verify(mock, never()).setSubObjectIntegerField(1);
   }
 
   @Test
@@ -70,7 +103,7 @@ public class NotifyTest {
     Merge.withConfiguration(new MergeConfiguration().notifyUpdate(() -> mock.setSubObjectStringField("1")))
         .merge(from, to);
 
-    verify(mock, times(1)).setSubObjectStringField("1");
+    verify(mock).setSubObjectStringField("1");
   }
 
   @Test

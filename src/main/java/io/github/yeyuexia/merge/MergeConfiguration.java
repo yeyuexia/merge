@@ -1,28 +1,34 @@
 package io.github.yeyuexia.merge;
 
 import io.github.yeyuexia.merge.copier.CustomerCopierAdapter;
-import io.github.yeyuexia.merge.function.FieldUpdateNotifier;
-import io.github.yeyuexia.merge.function.GlobalUpdateNotifier;
-import io.github.yeyuexia.merge.function.OrdinaryFieldUpdateNotifier;
-import io.github.yeyuexia.merge.function.OrdinaryGlobalUpdateNotifier;
+import io.github.yeyuexia.merge.notifier.function.FieldUpdateNotifier;
+import io.github.yeyuexia.merge.notifier.function.SingleFieldUpdateNotifier;
+import io.github.yeyuexia.merge.notifier.function.GlobalUpdateNotifier;
+import io.github.yeyuexia.merge.notifier.function.OrdinaryFieldUpdateNotifier;
+import io.github.yeyuexia.merge.notifier.function.OrdinaryGlobalUpdateNotifier;
+import io.github.yeyuexia.merge.notifier.UpdatedNotifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MergeConfiguration<Source, Target> {
 
   private final Map<Class, Set<CustomerCopierAdapter>> customs;
-  private final Map<String, FieldUpdateNotifier<Source, Target>> notifiers;
+  private final List<UpdatedNotifier> notifiers;
   private final Set<Class> customImmutableTypes;
   private Boolean ignoreNullValue;
 
   public MergeConfiguration() {
     this.customs = new HashMap<>();
-    this.notifiers = new HashMap<>();
+    this.notifiers = new ArrayList<>();
     this.customImmutableTypes = new HashSet<>();
     this.ignoreNullValue = true;
   }
@@ -45,22 +51,27 @@ public class MergeConfiguration<Source, Target> {
   }
 
   public MergeConfiguration<Source, Target> notifyUpdate(GlobalUpdateNotifier<Source, Target> notifier) {
-    this.notifiers.put("", (fieldName, source, target, oldValue, newValue) -> notifier.updateNotify(source, target));
+    this.notifiers.add(new UpdatedNotifier(Stream.of("").collect(Collectors.toSet()), notifier));
     return this;
   }
 
-  public MergeConfiguration<Source, Target> notifyUpdate(OrdinaryGlobalUpdateNotifier notifier) {
-    this.notifiers.put("", (fieldName, source, target, oldValue, newValue) -> notifier.updateNotify());
+  public MergeConfiguration<Source, Target> notifyUpdate(OrdinaryGlobalUpdateNotifier<Source, Target> notifier) {
+    this.notifiers.add(new UpdatedNotifier(Stream.of("").collect(Collectors.toSet()), notifier));
     return this;
   }
 
-  public MergeConfiguration<Source, Target> notifyUpdate(String path, FieldUpdateNotifier<Source, Target> notifier) {
-    this.notifiers.put(path, (fieldName, source, target, oldValue, newValue) -> notifier.updateNotify(fieldName, source, target, oldValue, newValue));
+  public MergeConfiguration<Source, Target> notifyUpdate(String path, SingleFieldUpdateNotifier<Source, Target> notifier) {
+    this.notifiers.add(new UpdatedNotifier(Stream.of(path).collect(Collectors.toSet()), notifier));
     return this;
   }
 
-  public MergeConfiguration<Source, Target> notifyUpdate(String path, OrdinaryFieldUpdateNotifier notifier) {
-    this.notifiers.put(path, (fieldName, source, target, oldValue, newValue) -> notifier.updateNotify(fieldName, oldValue, newValue));
+  public MergeConfiguration<Source, Target> notifyUpdate(String path, OrdinaryFieldUpdateNotifier<Source, Target> notifier) {
+    this.notifiers.add(new UpdatedNotifier(Stream.of(path).collect(Collectors.toSet()), notifier));
+    return this;
+  }
+
+  public MergeConfiguration<Source, Target> notifyUpdate(List<String> paths, FieldUpdateNotifier<Source, Target> notifier) {
+    this.notifiers.add(new UpdatedNotifier(paths.stream().collect(Collectors.toSet()), notifier));
     return this;
   }
 
@@ -78,7 +89,7 @@ public class MergeConfiguration<Source, Target> {
     return customs;
   }
 
-  public Map<String, FieldUpdateNotifier<Source, Target>> getNotifiers() {
+  public List<UpdatedNotifier> getNotifiers() {
     return notifiers;
   }
 

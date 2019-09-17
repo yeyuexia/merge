@@ -1,6 +1,6 @@
 package io.github.yeyuexia.merge;
 
-import io.github.yeyuexia.merge.helper.MergerBuilder;
+import io.github.yeyuexia.merge.helper.MergerHelper;
 
 public class Merge {
 
@@ -9,10 +9,10 @@ public class Merge {
   }
 
   public static <From, To> boolean merge(From from, To to, boolean ignoreNullValue) {
-    return new MergerBuilder(new MergeConfiguration<From, To>().ignoreNullValue(ignoreNullValue)).build().merge(from, to);
+    return new MergerHelper(new MergeConfiguration<From, To>().ignoreNullValue(ignoreNullValue)).merge(from, to);
   }
 
-  public static <From, To> Merger<From, To> withConfiguration(MergeConfiguration<From, To> configuration) {
-    return new MergerBuilder(configuration).build();
+  public static <From, To> MergerHelper withConfiguration(MergeConfiguration<From, To> configuration) {
+    return new MergerHelper(configuration);
   }
 }

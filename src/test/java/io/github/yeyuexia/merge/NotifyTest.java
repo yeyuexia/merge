@@ -41,7 +41,7 @@ public class NotifyTest {
 
     Merge.withConfiguration(new MergeConfiguration()
         .notifyUpdate(Arrays.asList("customFieldA.scalarTypeFloat", "customFieldA.scalarTypeDouble"),
-            (name, f, t) -> mock.setSubObjectIntegerField(1)))
+            (source, target, updatedFields) -> mock.setSubObjectIntegerField(1)))
         .merge(from, to);
 
     verify(mock).setSubObjectIntegerField(1);

@@ -77,7 +77,7 @@ assertEqual(from.getA(), to.getA());
     from.setB("b");
     B to = new B();
     withConfiguration(new MergeConfiguration<>()
-      .updateNotify(Arrays.asList("a", "b"), (path, f, t) -> mock.notifyUpdate())).merge(from, to);
+      .updateNotify(Arrays.asList("a", "b"), (source, target, updatedFields) -> mock.notifyUpdate())).merge(from, to);
   
     verify(mock).notifyUpdate();
     ```

@@ -3,14 +3,13 @@ package io.github.yeyuexia.merge;
 import io.github.yeyuexia.merge.copier.CopierFactory;
 import io.github.yeyuexia.merge.copier.CustomerCopierAdapter;
 import io.github.yeyuexia.merge.exception.MergeException;
-import io.github.yeyuexia.merge.function.FieldUpdateNotifier;
 import io.github.yeyuexia.merge.helper.Helper;
-import io.github.yeyuexia.merge.helper.UpdateCollector;
+import io.github.yeyuexia.merge.notifier.NotifierManager;
+import io.github.yeyuexia.merge.notifier.UpdatedNotifier;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,26 +24,24 @@ public class Merger<From, To> {
 
   private static final Logger LOG = LoggerFactory.getLogger(Merger.class);
   private final CopierFactory copierFactory;
-  private final Map<String, FieldUpdateNotifier> notifiers;
   private final Boolean ignoreNullValue;
-  private final Map<String, UpdateCollector> collector;
+  private final NotifierManager notifierManager;
   private final Set<Class> customImmutableTypes;
-  private From source;
-  private To target;
+  private final From source;
+  private final To target;
 
-  public Merger(Map<Class, Set<CustomerCopierAdapter>> customs, Map<String, FieldUpdateNotifier> notifiers,
-      Boolean ignoreNullValue, Set<Class> customImmutableTypes) {
+  public Merger(Map<Class, Set<CustomerCopierAdapter>> customs, List<UpdatedNotifier> notifiers,
+      Boolean ignoreNullValue, Set<Class> customImmutableTypes, From source, To target) {
     this.copierFactory = new CopierFactory(this, customs);
-    this.notifiers = notifiers;
     this.ignoreNullValue = ignoreNullValue;
     this.customImmutableTypes = customImmutableTypes;
-    this.collector = new HashMap<>();
+    this.notifierManager = new NotifierManager(notifiers);
+    this.source = source;
+    this.target = target;
   }
 
-  public boolean merge(From from, To to) {
-    source = from;
-    target = to;
-    boolean result = merge(from, to, "");
+  public boolean merge() {
+    boolean result = merge(source, target, "");
     sendNotify();
     return result;
   }
@@ -56,8 +53,8 @@ public class Merger<From, To> {
         .filter(field -> isIgnore(from, field))
         .map(field -> updateField(from, to, field, path))
         .collect(Collectors.toList()).stream().anyMatch(Boolean::booleanValue);
-    if (hasChange && notifiers.containsKey(path)) {
-      collector.put(path, new UpdateCollector(to, from, notifiers.get(path)));
+    if (hasChange) {
+      notifierManager.addUpdatedPath(path, from, to);
     }
     return hasChange;
   }
@@ -67,9 +64,7 @@ public class Merger<From, To> {
   }
 
   private void sendNotify() {
-    collector.entrySet().forEach(entrySet -> entrySet.getValue()
-        .getNotifier()
-        .updateNotify(entrySet.getKey(), source, target, entrySet.getValue().getFrom(), entrySet.getValue().getTo()));
+    notifierManager.notifyUpdate(source, target);
   }
 
   private <Source, Target> boolean updateField(Source from, Target to, Field field, String path) {
@@ -88,9 +83,7 @@ public class Merger<From, To> {
       BeanUtils.setProperty(to, field.getName(), value);
       if (!Objects.equals(value, originValue)) {
         String fieldPath = Helper.getPath(path, field.getName());
-        if (notifiers.containsKey(fieldPath)) {
-          collector.put(fieldPath, new UpdateCollector(originValue, value, notifiers.get(fieldPath)));
-        }
+        notifierManager.addUpdatedPath(fieldPath, originValue, value);
         return true;
       }
       return false;

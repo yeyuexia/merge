@@ -138,7 +138,8 @@ jacocoTestCoverageVerification {
             excludes = [
                     '**.function.*',
                     '**.exception.*',
-                    '**.CustomerCopierAdapter'
+                    '**.CustomerCopierAdapter',
+                    '**.UpdatedField'
             ]
 
             limit {

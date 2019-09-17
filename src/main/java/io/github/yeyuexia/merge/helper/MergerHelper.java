@@ -3,16 +3,16 @@ package io.github.yeyuexia.merge.helper;
 import io.github.yeyuexia.merge.MergeConfiguration;
 import io.github.yeyuexia.merge.Merger;
 
-public final class MergerBuilder {
+public final class MergerHelper {
 
   private final MergeConfiguration configuration;
 
-  public MergerBuilder(MergeConfiguration configuration) {
+  public MergerHelper(MergeConfiguration configuration) {
     this.configuration = configuration;
   }
 
-  public Merger build() {
+  public <Source, Target> boolean merge(Source source, Target target) {
     return new Merger(configuration.getCustoms(), configuration.getNotifiers(),
-        configuration.getIgnoreNullValue(), configuration.getCustomImmutableTypes());
+        configuration.getIgnoreNullValue(), configuration.getCustomImmutableTypes(), source, target).merge();
   }
 }

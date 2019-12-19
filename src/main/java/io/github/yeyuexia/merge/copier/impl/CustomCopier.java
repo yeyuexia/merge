@@ -1,7 +1,7 @@
 package io.github.yeyuexia.merge.copier.impl;
 
-import io.github.yeyuexia.merge.copier.CustomerCopierAdapter;
 import io.github.yeyuexia.merge.copier.Copier;
+import io.github.yeyuexia.merge.copier.CustomerCopierAdapter;
 import io.github.yeyuexia.merge.exception.MergeException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

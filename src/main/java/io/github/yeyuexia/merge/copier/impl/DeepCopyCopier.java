@@ -133,7 +133,7 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
   }
 
   private Object generateInstance(Object fromValue, Class type) throws InstantiationException, IllegalAccessException {
-    if (type.isInstance(fromValue)) {
+    if (fromValue != null && type.isInstance(fromValue)) {
       return fromValue.getClass().newInstance();
     } else {
       return type.newInstance();

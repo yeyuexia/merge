@@ -7,9 +7,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.exmertec.dummie.Dummie;
-import com.exmertec.dummie.configuration.GenerationStrategy;
 import com.google.common.collect.Lists;
+import io.github.dummiejava.dummie.Dummie;
+import io.github.dummiejava.dummie.configuration.GenerationStrategy;
 import io.github.yeyuexia.merge.Merger;
 import io.github.yeyuexia.merge.base.data.BaseObject;
 import io.github.yeyuexia.merge.base.data.ListObject;
@@ -34,7 +34,7 @@ public class DeepCopyCopierTest {
     SimpleObjectB to = new SimpleObjectB();
     DeepCopyCopier copier = new DeepCopyCopier(null);
 
-    Object result = copier.copy(from, to, to.getClass().getDeclaredField("scalarTypeInt"), "");
+    Object result = copier.copy(to.getClass().getDeclaredField("scalarTypeInt"), from.getScalarTypeInt(), to.getScalarTypeInt(), "");
 
     assertEquals(result, from.getScalarTypeInt());
   }
@@ -46,7 +46,7 @@ public class DeepCopyCopierTest {
     Merger merger = mock(Merger.class);
     DeepCopyCopier copier = new DeepCopyCopier(merger);
 
-    copier.copy(from, to, to.getClass().getDeclaredField("customFieldA"), "");
+    copier.copy(to.getClass().getDeclaredField("customFieldA"), from.getCustomFieldA(), to.getCustomFieldA(), "");
 
     verify(merger, times(1)).merge(any(SimpleObjectA.class), any(SimpleObjectB.class), anyString());
   }
@@ -59,7 +59,7 @@ public class DeepCopyCopierTest {
     Merger merger = mock(Merger.class);
     DeepCopyCopier copier = new DeepCopyCopier(merger);
 
-    copier.copy(from, to, to.getClass().getDeclaredField("customFieldA"), "");
+    copier.copy(to.getClass().getDeclaredField("customFieldA"), from.getCustomFieldA(), to.getCustomFieldA(), "");
 
     verify(merger, times(1)).merge(from.getCustomFieldA(), to.getCustomFieldA(), "customFieldA");
   }
@@ -75,7 +75,7 @@ public class DeepCopyCopierTest {
     Merger merger = mock(Merger.class);
     DeepCopyCopier copier = new DeepCopyCopier(merger);
 
-    copier.copy(from, to, to.getClass().getDeclaredField("objects"), "");
+    copier.copy(to.getClass().getDeclaredField("objects"), from.getObjects(), to.getObjects(), "");
 
     assertEquals(from.getObjects().size(), to.getObjects().size());
   }
@@ -90,7 +90,7 @@ public class DeepCopyCopierTest {
     Merger merger = mock(Merger.class);
     DeepCopyCopier copier = new DeepCopyCopier(merger);
 
-    copier.copy(from, to, to.getClass().getDeclaredField("numbers"), "");
+    copier.copy(to.getClass().getDeclaredField("numbers"), from.getNumbers(), to.getNumbers(), "");
 
     assertEquals(3, to.getNumbers().size());
     assertEquals(from.getNumbers().get(0), to.getNumbers().get(0));

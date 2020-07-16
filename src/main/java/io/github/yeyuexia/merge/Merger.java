@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,6 @@ public class Merger<From, To> {
     boolean hasChange = getFields(to.getClass())
         .stream()
         .filter(field -> isWriteAble(from, to, field))
-        .filter(field -> isIgnore(from, field))
         .map(field -> updateField(from, to, field, path))
         .collect(Collectors.toList()).stream().anyMatch(Boolean::booleanValue);
     if (hasChange) {
@@ -70,25 +68,19 @@ public class Merger<From, To> {
   private <Source, Target> boolean updateField(Source from, Target to, Field field, String path) {
     try {
       Object fromValue = PropertyUtils.getSimpleProperty(from, field.getName());
-      Object toValue = copierFactory.getCopier(field.getType(), fromValue).copy(from, to, field, path);
-      return updateField(to, field, path, toValue);
-    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      throw new MergeException();
-    }
-  }
-
-  private <Target> boolean updateField(Target to, Field field, String path, Object value) {
-    try {
-      Object originValue = getSimpleProperty(to, field);
-      BeanUtils.setProperty(to, field.getName(), value);
-      if (!Objects.equals(value, originValue)) {
-        String fieldPath = Helper.getPath(path, field.getName());
-        notifierManager.addUpdatedPath(fieldPath, originValue, value);
-        return true;
+      if (!(ignoreNullValue && fromValue == null)) {
+        Object originToValue = PropertyUtils.getSimpleProperty(to, field.getName());
+        Object toValue = copierFactory.getCopier(field.getType(), fromValue).copy(field, fromValue, originToValue, path);
+        if (!Objects.equals(toValue, originToValue)) {
+          PropertyUtils.setSimpleProperty(to, field.getName(), toValue);
+          String fieldPath = Helper.getPath(path, field.getName());
+          notifierManager.addUpdatedPath(fieldPath, originToValue, toValue);
+          return true;
+        }
       }
       return false;
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new MergeException();
+    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      throw new MergeException(e);
     }
   }
 
@@ -107,22 +99,5 @@ public class Merger<From, To> {
 
   private <Source, Target> boolean isWriteAble(Source from, Target to, Field field) {
     return PropertyUtils.isWriteable(to, field.getName()) && PropertyUtils.isReadable(from, field.getName());
-  }
-
-  private <Source> boolean isIgnore(Source from, Field field) {
-    try {
-      return !(ignoreNullValue && BeanUtils.getProperty(from, field.getName()) == null);
-    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      LOG.error("Get property error: {}", e);
-      throw new MergeException();
-    }
-  }
-
-  private Object getSimpleProperty(Object to, Field field) {
-    try {
-      return PropertyUtils.getSimpleProperty(to, field.getName());
-    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      throw new MergeException();
-    }
   }
 }

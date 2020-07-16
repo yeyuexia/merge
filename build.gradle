@@ -86,7 +86,7 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile "org.mockito:mockito-all:1.10.19"
-    testCompile group: 'com.exmertec.dummie', name: 'dummie', version: '0.1.0'
+    testCompile 'io.github.dummie-java:dummie:1.0.0'
     testCompile group: 'com.google.guava', name: 'guava', version: '23.0'
 }
 

@@ -2,8 +2,8 @@ package io.github.yeyuexia.merge;
 
 import static org.junit.Assert.assertEquals;
 
-import com.exmertec.dummie.Dummie;
-import com.exmertec.dummie.configuration.GenerationStrategy;
+import io.github.dummiejava.dummie.Dummie;
+import io.github.dummiejava.dummie.configuration.GenerationStrategy;
 import java.util.List;
 import org.junit.Test;
 

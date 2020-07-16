@@ -38,15 +38,15 @@ public class MergeConfiguration<Source, Target> {
     return this;
   }
 
-  public <From, To> MergeConfiguration<Source, Target> custom(Class<To> specialClass, Function<From, To> generator) {
-    this.customs.putIfAbsent(specialClass, new HashSet<>());
-    this.customs.get(specialClass).add(new CustomerCopierAdapter(Object.class, generator));
+  public <From, To> MergeConfiguration<Source, Target> custom(Class<To> targetClass, Function<From, To> generator) {
+    this.customs.putIfAbsent(targetClass, new HashSet<>());
+    this.customs.get(targetClass).add(new CustomerCopierAdapter(Object.class, generator));
     return this;
   }
 
-  public <From, To> MergeConfiguration<Source, Target> custom(Class<To> specialClass, Class<From> sourceClass, Function<From, To> generator) {
-    this.customs.putIfAbsent(specialClass, new HashSet<>());
-    this.customs.get(specialClass).add(new CustomerCopierAdapter<>(sourceClass, generator));
+  public <From, To> MergeConfiguration<Source, Target> custom(Class<To> targetClass, Class<From> sourceClass, Function<From, To> generator) {
+    this.customs.putIfAbsent(targetClass, new HashSet<>());
+    this.customs.get(targetClass).add(new CustomerCopierAdapter<>(sourceClass, generator));
     return this;
   }
 

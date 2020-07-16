@@ -3,8 +3,8 @@ package io.github.yeyuexia.merge;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.exmertec.dummie.Dummie;
-import com.exmertec.dummie.configuration.GenerationStrategy;
+import io.github.dummiejava.dummie.Dummie;
+import io.github.dummiejava.dummie.configuration.GenerationStrategy;
 import io.github.yeyuexia.merge.base.data.BaseObject;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
 import io.github.yeyuexia.merge.helper.MergerHelper;
@@ -58,26 +58,21 @@ public class CustomFieldMergeTest extends BaseTest {
   }
 
   @Test
-  public void should_use_custom_consumer_do_copy_when_merge_data_and_not_special_source_class_type() throws Exception {
-    MergerHelper merger = Merge.withConfiguration(new MergeConfiguration<>()
-        .custom(BaseObject.class, this::toBaseObject));
+  public void should_failed_when_source_type_diff_with_target_type() {
     ObjectWithCustomField from = Dummie.withStrategy(GenerationStrategy.RANDOM)
         .create(ObjectWithCustomField.class);
     ObjectWithCustomField to = new ObjectWithCustomField();
+  }
+
+  @Test(expected = ClassCastException.class)
+  public void should_use_custom_consumer_do_copy_when_merge_data_and_not_special_source_class_type() throws Exception {
+    MergerHelper merger = Merge.withConfiguration(new MergeConfiguration<>()
+        .custom(BaseObject.class, this::toBaseObject));
+    ObjectWithCustomFieldFrom from = Dummie.withStrategy(GenerationStrategy.RANDOM)
+        .create(ObjectWithCustomFieldFrom.class);
+    ObjectWithCustomField to = new ObjectWithCustomField();
 
     merger.merge(from, to);
-
-    Arrays.stream(to.getField2().getClass().getDeclaredFields())
-        .filter(field -> !field.isSynthetic())
-        .map(Field::getName)
-        .forEach(field -> fieldEquals(from.getField2(), to.getField2(), field));
-    List<String> fields = Arrays.stream(to.getField1().getClass().getDeclaredFields())
-        .filter(field -> !field.isSynthetic())
-        .map(Field::getName)
-        .collect(Collectors.toList());
-    for (String field : fields) {
-      assertEquals(null, PropertyUtils.getProperty(to.getField1(), field));
-    }
   }
 
   private BaseObject toBaseObject(BaseObject from) {

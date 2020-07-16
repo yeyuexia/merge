@@ -14,7 +14,7 @@ public class CustomerCopierAdapter<From, To> {
   }
 
   public boolean match(Object value) {
-    return sourceClass.isInstance(value);
+    return value != null && sourceClass.isInstance(value);
   }
 
   public Class<From> getSourceClass() {

@@ -2,12 +2,9 @@ package io.github.yeyuexia.merge.copier.impl;
 
 import io.github.yeyuexia.merge.copier.Copier;
 import io.github.yeyuexia.merge.copier.CustomerCopierAdapter;
-import io.github.yeyuexia.merge.exception.MergeException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import java.util.function.Function;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,23 +19,14 @@ public class CustomCopier extends Copier {
   }
 
   @Override
-  public Object copy(Object from, Object to, Field field, String path) {
-    try {
-      Object value = PropertyUtils.getSimpleProperty(from, field.getName());
-      Function function = adapters.stream()
-          .filter(adapter -> adapter.getSourceClass() != Object.class)
-          .filter(adapter -> adapter.match(value))
-          .findFirst()
-          .orElseGet(this::getDefaultAdapter)
-          .getCustomerCopier();
-      return function.apply(value);
-    } catch (IllegalAccessException e) {
-      LOG.error("Init field bean error: {}", e);
-      throw new MergeException();
-    } catch (NoSuchMethodException | InvocationTargetException e) {
-      LOG.error("Get property error: {}", e);
-      throw new MergeException();
-    }
+  public Object copy(Field field, Object fromValue, Object toValue, String path) {
+    Function function = adapters.stream()
+        .filter(adapter -> adapter.getSourceClass() != Object.class)
+        .filter(adapter -> adapter.match(fromValue))
+        .findFirst()
+        .orElseGet(this::getDefaultAdapter)
+        .getCustomerCopier();
+    return function.apply(fromValue);
   }
 
   private CustomerCopierAdapter getDefaultAdapter() {

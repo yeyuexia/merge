@@ -2,10 +2,9 @@ package io.github.yeyuexia.merge;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Mockito.mock;
 
-import com.exmertec.dummie.Dummie;
-import com.exmertec.dummie.configuration.GenerationStrategy;
+import io.github.dummiejava.dummie.Dummie;
+import io.github.dummiejava.dummie.configuration.GenerationStrategy;
 import io.github.yeyuexia.merge.base.data.BaseObject;
 import io.github.yeyuexia.merge.base.data.ImmutableFieldObject;
 import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldA;
@@ -13,7 +12,6 @@ import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldB;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
 import io.github.yeyuexia.merge.base.data.SimpleObjectB;
 import io.github.yeyuexia.merge.base.data.SubObject;
-import io.github.yeyuexia.merge.copier.impl.DeepCopyCopier;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -129,5 +127,28 @@ public class MergeTest extends BaseTest {
         .filter(field -> !field.isSynthetic())
         .map(Field::getName)
         .forEach(field -> fieldEquals(from.getCustomFieldB(), to.getCustomFieldB(), field));
+  }
+
+  @Test
+  public void should_success_use_getter_and_setter() {
+    SetWithLogic from = new SetWithLogic();
+    from.setValue(1);
+    SetWithLogic to = new SetWithLogic();
+    to.setValue(0);
+    Merge.merge(from, to);
+
+    assertEquals(new Integer(5), to.getValue());
+  }
+
+  public static class SetWithLogic {
+    private Integer value;
+
+    public Integer getValue() {
+      return value + 1;
+    }
+
+    public void setValue(Integer value) {
+      this.value = value + 1;
+    }
   }
 }

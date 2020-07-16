@@ -5,7 +5,6 @@ import io.github.yeyuexia.merge.copier.Copier;
 import io.github.yeyuexia.merge.exception.MergeException;
 import io.github.yeyuexia.merge.helper.Helper;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -17,11 +16,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
+public class DeepCopyCopier extends Copier {
 
   private static final Logger LOG = LoggerFactory.getLogger(DeepCopyCopier.class);
 
@@ -64,16 +62,12 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
   }
 
   @Override
-  public Object copy(X from, Y to, Field field, String path) {
+  public Object copy(Field field, Object fromValue, Object toValue, String path) {
     try {
-      return isImmutableType(field.getType()) ? PropertyUtils.getSimpleProperty(from, field.getName()) :
-          getObjectValue(from, to, field, path);
+      return isImmutableType(field.getType()) ? fromValue : getObjectValue(field, fromValue, toValue, path);
     } catch (InstantiationException | IllegalAccessException e) {
       LOG.error("Init field bean error: {}", e);
-      throw new MergeException();
-    } catch (NoSuchMethodException | InvocationTargetException e) {
-      LOG.error("Get property error: {}", e);
-      throw new MergeException();
+      throw new MergeException(e);
     }
   }
 
@@ -82,10 +76,7 @@ public class DeepCopyCopier<X, Y> extends Copier<X, Y> {
         || IMMUTABLE_TYPES.contains(type) || merger.getCustomImmutableTypes().contains(type);
   }
 
-  private Object getObjectValue(X from, Y to, Field field, String path) throws IllegalAccessException,
-      InvocationTargetException, NoSuchMethodException, InstantiationException {
-    Object toValue = PropertyUtils.getSimpleProperty(to, field.getName());
-    Object fromValue = PropertyUtils.getSimpleProperty(from, field.getName());
+  private Object getObjectValue(Field field, Object fromValue, Object toValue, String path) throws IllegalAccessException, InstantiationException {
     Object fieldBean = toValue == null ? generateInstance(fromValue, field.getType()) : toValue;
     if (fieldBean instanceof Collection) {
       Type[] actualTypeArguments = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();

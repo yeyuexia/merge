@@ -3,11 +3,10 @@ package io.github.yeyuexia.merge;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.exmertec.dummie.Dummie;
-import com.exmertec.dummie.configuration.GenerationStrategy;
+import io.github.dummiejava.dummie.Dummie;
+import io.github.dummiejava.dummie.configuration.GenerationStrategy;
 import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldA;
 import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldB;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;

@@ -9,7 +9,7 @@ apply plugin: 'signing'
 
 group 'io.github.yeyuexia'
 archivesBaseName = "merge"
-version '1.4.3'
+version '1.4.4'
 
 sourceCompatibility = 1.8
 

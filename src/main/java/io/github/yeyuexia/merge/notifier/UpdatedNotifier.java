@@ -4,6 +4,7 @@ import io.github.yeyuexia.merge.notifier.function.FieldUpdateNotifier;
 import java.util.Set;
 
 public class UpdatedNotifier {
+
   private final Set<String> paths;
   private final FieldUpdateNotifier notifier;
 

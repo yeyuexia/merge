@@ -1,12 +1,12 @@
 package io.github.yeyuexia.merge;
 
 import io.github.yeyuexia.merge.copier.CustomerCopierAdapter;
+import io.github.yeyuexia.merge.notifier.UpdatedNotifier;
 import io.github.yeyuexia.merge.notifier.function.FieldUpdateNotifier;
-import io.github.yeyuexia.merge.notifier.function.SingleFieldUpdateNotifier;
 import io.github.yeyuexia.merge.notifier.function.GlobalUpdateNotifier;
 import io.github.yeyuexia.merge.notifier.function.OrdinaryFieldUpdateNotifier;
 import io.github.yeyuexia.merge.notifier.function.OrdinaryGlobalUpdateNotifier;
-import io.github.yeyuexia.merge.notifier.UpdatedNotifier;
+import io.github.yeyuexia.merge.notifier.function.SingleFieldUpdateNotifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

@@ -7,18 +7,22 @@ import io.github.dummiejava.dummie.Dummie;
 import io.github.dummiejava.dummie.configuration.GenerationStrategy;
 import io.github.yeyuexia.merge.base.data.BaseObject;
 import io.github.yeyuexia.merge.base.data.ImmutableFieldObject;
+import io.github.yeyuexia.merge.base.data.ObjectValueObject;
 import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldA;
 import io.github.yeyuexia.merge.base.data.ObjectWithCustomFieldB;
 import io.github.yeyuexia.merge.base.data.SimpleObjectA;
 import io.github.yeyuexia.merge.base.data.SimpleObjectB;
+import io.github.yeyuexia.merge.base.data.StringValueObject;
 import io.github.yeyuexia.merge.base.data.SubObject;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.Test;
 
@@ -138,6 +142,27 @@ public class MergeTest extends BaseTest {
     Merge.merge(from, to);
 
     assertEquals(new Integer(5), to.getValue());
+  }
+
+  @Test
+  public void should_success_auto_convert_object_type() {
+    String floatValue = "-1.3";
+    String bigDecimalValue = "1123.2";
+    String integerValue = "11";
+    Integer stringValue = 22;
+    StringValueObject from = new StringValueObject();
+    from.setBigDecimalValue(bigDecimalValue);
+    from.setFloatValue(floatValue);
+    from.setIntegerValue(integerValue);
+    from.setStringValue(stringValue);
+    ObjectValueObject to = new ObjectValueObject();
+
+    Merge.merge(from, to);
+
+    assertEquals(new BigDecimal(bigDecimalValue), to.getBigDecimalValue());
+    assertEquals(new Float(floatValue), to.getFloatValue());
+    assertEquals(new Integer(integerValue), to.getIntegerValue());
+    assertEquals(String.valueOf(stringValue), to.getStringValue());
   }
 
   public static class SetWithLogic {

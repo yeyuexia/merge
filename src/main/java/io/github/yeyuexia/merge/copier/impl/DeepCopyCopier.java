@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +66,7 @@ public class DeepCopyCopier extends Copier {
   @Override
   public Object copy(Field field, Object fromValue, Object toValue, String path) {
     try {
-      return isImmutableType(field.getType()) ? fromValue : getObjectValue(field, fromValue, toValue, path);
+      return isImmutableType(field.getType()) ? normalize(field.getType(), fromValue) : getObjectValue(field, fromValue, toValue, path);
     } catch (InstantiationException | IllegalAccessException e) {
       LOG.error("Init field bean error: {}", e);
       throw new MergeException(e);
@@ -128,6 +130,63 @@ public class DeepCopyCopier extends Copier {
       return fromValue.getClass().newInstance();
     } else {
       return type.newInstance();
+    }
+  }
+
+  /**
+   * Copy from org.apache.commons.beanutils.BeanUtilsBean.setProperty(final Object bean, String name, final Object value) to Convert the specified
+   * value to the required type
+   *
+   * @param type      target field type.
+   * @param fromValue from value, should be merge
+   * @return target type instance
+   */
+  private Object normalize(Class type, Object fromValue) {
+    if (fromValue == null || type.isInstance(fromValue)) {
+      return fromValue;
+    }
+    Object newValue;
+    if (type.isArray() && type.getComponentType().isPrimitive()) { // Scalar value into array
+      if (fromValue instanceof String) {
+        newValue = ConvertUtils.convert(fromValue, type);
+      } else if (fromValue instanceof String[]) {
+        newValue = ConvertUtils.convert((String[]) fromValue, type);
+      } else {
+        newValue = convert(fromValue, type);
+      }
+    } else if (type.isArray()) {         // Indexed value into array
+      if (fromValue instanceof String) {
+        newValue = ConvertUtils.convert((String) fromValue, type.getComponentType());
+      } else if (fromValue instanceof String[]) {
+        newValue = ConvertUtils.convert(((String[]) fromValue)[0], type.getComponentType());
+      } else {
+        newValue = convert(fromValue, type.getComponentType());
+      }
+    } else {                             // Value into scalar
+      if (fromValue instanceof String) {
+        newValue = ConvertUtils.convert((String) fromValue, type);
+      } else if (fromValue instanceof String[]) {
+        newValue = ConvertUtils.convert(((String[]) fromValue)[0], type);
+      } else {
+        newValue = convert(fromValue, type);
+      }
+    }
+    return newValue;
+  }
+
+  /**
+   * Copy from Copy from org.apache.commons.beanutils.BeanUtilsBean.convert(final Object value, final Class<?> type)
+   *
+   * @param value source value
+   * @param type  target type
+   * @return target value
+   */
+  private Object convert(final Object value, final Class<?> type) {
+    final Converter converter = ConvertUtils.lookup(type);
+    if (converter != null) {
+      return converter.convert(type, value);
+    } else {
+      return value;
     }
   }
 }

@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class NotifierManager<Source, Target> {
+
   private final Set<String> paths;
   private final List<UpdatedNotifier> pendingNotifiers;
   private final List<UpdatedField> updatedFields;

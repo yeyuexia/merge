@@ -1,6 +1,7 @@
 package io.github.yeyuexia.merge.notifier;
 
 public class UpdatedField {
+
   private String path;
   private Object from;
   private Object to;

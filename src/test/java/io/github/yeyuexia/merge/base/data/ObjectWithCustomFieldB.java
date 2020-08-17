@@ -3,7 +3,7 @@ package io.github.yeyuexia.merge.base.data;
 public class ObjectWithCustomFieldB {
 
   private SimpleObjectA customFieldA;
-  private SimpleObjectB customFieldB;
+  private SimpleObjectA customFieldB;
 
   public SimpleObjectA getCustomFieldA() {
     return customFieldA;
@@ -13,11 +13,11 @@ public class ObjectWithCustomFieldB {
     this.customFieldA = customFieldA;
   }
 
-  public SimpleObjectB getCustomFieldB() {
+  public SimpleObjectA getCustomFieldB() {
     return customFieldB;
   }
 
-  public void setCustomFieldB(SimpleObjectB customFieldB) {
+  public void setCustomFieldB(SimpleObjectA customFieldB) {
     this.customFieldB = customFieldB;
   }
 }

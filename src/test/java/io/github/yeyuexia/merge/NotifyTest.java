@@ -93,6 +93,37 @@ public class NotifyTest {
   }
 
   @Test
+  public void should_notify_if_field_value_change() {
+    ObjectWithCustomFieldA from = Dummie.withStrategy(GenerationStrategy.RANDOM)
+        .create(ObjectWithCustomFieldA.class);
+    ObjectWithCustomFieldB to = new ObjectWithCustomFieldB();
+    SubObject mock = mock(SubObject.class);
+
+    Merge.withConfiguration(new MergeConfiguration()
+        .notifyUpdate("customFieldA.scalarTypeFloat", (name, f, t) -> mock.setSubObjectIntegerField(1)))
+        .merge(from, to);
+
+    verify(mock).setSubObjectIntegerField(1);
+  }
+
+  @Test
+  public void should_not_notify_change_if_object_value_not_change() {
+    ObjectWithCustomFieldA from = Dummie.withStrategy(GenerationStrategy.DEFAULT)
+        .create(ObjectWithCustomFieldA.class);
+    ObjectWithCustomFieldB to =  Dummie.withStrategy(GenerationStrategy.DEFAULT)
+        .create(ObjectWithCustomFieldB.class);
+    to.getCustomFieldB().setLocalDateTime(from.getCustomFieldB().getLocalDateTime());
+    to.getCustomFieldB().setOffsetDateTime(from.getCustomFieldB().getOffsetDateTime());
+    SubObject mock = mock(SubObject.class);
+
+    Merge.withConfiguration(new MergeConfiguration()
+        .notifyUpdate("customFieldB", (name, f, t) -> mock.setSubObjectIntegerField(1)))
+        .merge(from, to);
+
+    verify(mock, never()).setSubObjectIntegerField(1);
+  }
+
+  @Test
   public void should_success_notify_global_change_when_field_value_updated() throws Exception {
     ObjectWithCustomFieldA from = Dummie.withStrategy(GenerationStrategy.RANDOM)
         .create(ObjectWithCustomFieldA.class);

@@ -16,12 +16,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Merger<From, To> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(Merger.class);
   private final CopierFactory copierFactory;
   private final Boolean ignoreNullValue;
   private final NotifierManager notifierManager;
@@ -71,7 +68,7 @@ public class Merger<From, To> {
       if (!(ignoreNullValue && fromValue == null)) {
         Object originToValue = PropertyUtils.getSimpleProperty(to, field.getName());
         Object toValue = copierFactory.getCopier(field.getType(), fromValue).copy(field, fromValue, originToValue, path);
-        if (!Objects.equals(toValue, originToValue)) {
+        if (!isEquals(toValue, originToValue)) {
           PropertyUtils.setSimpleProperty(to, field.getName(), toValue);
           String fieldPath = Helper.getPath(path, field.getName());
           notifierManager.addUpdatedPath(fieldPath, originToValue, toValue);
@@ -100,4 +97,15 @@ public class Merger<From, To> {
   private <Source, Target> boolean isWriteAble(Source from, Target to, Field field) {
     return PropertyUtils.isWriteable(to, field.getName()) && PropertyUtils.isReadable(from, field.getName());
   }
+
+  private boolean isEquals(Object toValue, Object originToValue) {
+    if (toValue == null) {
+      return originToValue == null;
+    } else if (toValue.getClass().isInstance(Comparable.class)) {
+      return ((Comparable) toValue).compareTo(originToValue) == 0;
+    } else {
+      return Objects.equals(toValue, originToValue);
+    }
+  }
 }
+

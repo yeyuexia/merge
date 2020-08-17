@@ -1,5 +1,9 @@
 package io.github.yeyuexia.merge.base.data;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+
 public class SimpleObjectA {
 
   private int scalarTypeInt;
@@ -15,6 +19,9 @@ public class SimpleObjectA {
   private Byte objectTypeByte;
   private Character objectTypeCharacter;
   private String objectTypeString;
+  private LocalDateTime localDateTime;
+  private OffsetDateTime offsetDateTime;
+  private BigDecimal bigDecimal;
 
   public int getScalarTypeInt() {
     return scalarTypeInt;
@@ -118,5 +125,29 @@ public class SimpleObjectA {
 
   public void setObjectTypeString(String objectTypeString) {
     this.objectTypeString = objectTypeString;
+  }
+
+  public LocalDateTime getLocalDateTime() {
+    return localDateTime;
+  }
+
+  public void setLocalDateTime(LocalDateTime localDateTime) {
+    this.localDateTime = localDateTime;
+  }
+
+  public OffsetDateTime getOffsetDateTime() {
+    return offsetDateTime;
+  }
+
+  public void setOffsetDateTime(OffsetDateTime offsetDateTime) {
+    this.offsetDateTime = offsetDateTime;
+  }
+
+  public BigDecimal getBigDecimal() {
+    return bigDecimal;
+  }
+
+  public void setBigDecimal(BigDecimal bigDecimal) {
+    this.bigDecimal = bigDecimal;
   }
 }

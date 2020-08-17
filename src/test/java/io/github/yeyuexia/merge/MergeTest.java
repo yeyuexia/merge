@@ -126,7 +126,7 @@ public class MergeTest extends BaseTest {
     Merge.withConfiguration(new MergeConfiguration<>().immutableTypes(SimpleObjectA.class)).merge(from, to);
 
     assertEquals(from.getCustomFieldA(), to.getCustomFieldA());
-    assertNotEquals(from.getCustomFieldB(), to.getCustomFieldB());
+    assertEquals(from.getCustomFieldB(), to.getCustomFieldB());
     Arrays.stream(to.getCustomFieldB().getClass().getDeclaredFields())
         .filter(field -> !field.isSynthetic())
         .map(Field::getName)

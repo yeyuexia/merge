@@ -5,7 +5,7 @@ A lightweight tool to merge one bean into another bean.
 
 * Add Dependency
 ```groovy
-compile "io.github.yeyuexia:merge:1.4.6"
+compile "io.github.yeyuexia:merge:${latestVersion}"
 ```
 * Merge Object
 ```java

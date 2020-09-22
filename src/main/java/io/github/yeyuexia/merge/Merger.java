@@ -101,7 +101,7 @@ public class Merger<From, To> {
   private boolean isEquals(Object toValue, Object originToValue) {
     if (toValue == null) {
       return originToValue == null;
-    } else if (toValue.getClass().isInstance(Comparable.class)) {
+    } else if (Comparable.class.isInstance(toValue) && Comparable.class.isInstance(originToValue)) {
       return ((Comparable) toValue).compareTo(originToValue) == 0;
     } else {
       return Objects.equals(toValue, originToValue);
